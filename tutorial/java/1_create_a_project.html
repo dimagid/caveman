@@ -1,0 +1,125 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  </head>
+  <body style="max-width: 800px">
+    <section>
+      <a href="/"><img src="/caveman.jpg" width="100px" /></a>
+    </section>
+
+    <h1>Create a Project</h1>
+    <ul>
+      <li>
+        <h2>Make a folder for your project and <code>cd</code> into it.</h2>
+        <code>
+          <pre>
+$ mkdir project
+$ cd project</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>
+          Create a file called <code>Justfile</code> and put the following into
+          it.
+        </h2>
+        <code>
+          <pre>
+# Shows available recipies
+help:
+    just --list</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Test that using <code>just help</code></h2>
+        <code>
+          <pre>
+$ just help
+just --list
+Available recipes:
+    help # Shows available recipies</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Create a folder named <code>src</code></h2>
+        <code><pre>$ mkdir -p src</pre></code>
+      </li>
+      <li>
+        <h2>
+          Put a file named <code>Main.java</code> in that folder with the
+          following contents.
+        </h2>
+        <code>
+          <pre>
+void main() {
+    println("Hello, world");
+}</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Run that file</h2>
+        <code>
+          <pre>
+$ java src/Main.java
+Hello, world</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Add the command to run that file to your <code>Justfile</code></h2>
+        <code>
+          <pre>
+# Shows available recipies
+help:
+    just --list
+                
+run:
+    java src/Main.java</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Run your project with <code>just run</code></h2>
+        <p>
+          This will be very useful once running your project takes more than an
+          easy to remember command.
+        </p>
+        <code>
+          <pre>
+$ just run
+java src/Main.java
+Hello, world
+          </pre>
+        </code>
+      </li>
+    </ul>
+
+    After all that, you should have a project structure that looks like this.
+    You can check using the <code>tree</code>
+    command.
+    <code>
+      <pre>
+src/
+  Main.java
+Justfile</pre
+      >
+    </code>
+
+    <section>
+      <div>
+        <h1>
+          <a href="/tutorial/java/2_make_an_http_server.html">
+            &rarr; Make an Http Server</a
+          >
+        </h1>
+        <h1>
+          <a href="/tutorial/java/0_prerequisites.html">&larr; Prerequisites</a>
+        </h1>
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  </head>
+  <body style="max-width: 800px">
+    <section>
+      <a href="/"><img src="/caveman.jpg" width="100px" /></a>
+    </section>
+
+    <h1>Make an HTTP Server</h1>
+    <ul>
+      <li>
+        <h2>
+          Edit your <code>src/Main.java</code> file so it has the following
+          contents.
+        </h2>
+        <code>
+          <pre>
+import com.sun.net.httpserver.HttpServer;
+
+import java.net.InetSocketAddress;
+import java.util.List;
+
+void main() throws Exception {
+    var server = HttpServer.create(new InetSocketAddress(9999), 0);
+    server.createContext("/", exchange -> {
+        var headers = exchange.getResponseHeaders();
+        headers.put("Content-Type", List.of("text/html"));
+
+        exchange.sendResponseHeaders(200, 0);
+        try (var os = exchange.getResponseBody()) {
+            os.write("Hello, world".getBytes());
+        }
+    });
+
+    server.start();
+}
+</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Run the server with <code>just run</code></h2>
+      </li>
+      <li>
+        <h2>
+          Open your web browser and go to <code>http://localhost:9999</code>
+        </h2>
+      </li>
+    </ul>
+    <section>
+      <div>
+        <h1>
+          <a href="/tutorial/java/1_create_a_project.html"
+            >&larr; Create a Project</a
+          >
+        </h1>
+      </div>
+    </section>
+  </body>
+</html>

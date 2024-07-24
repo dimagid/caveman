@@ -1,0 +1,80 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  </head>
+  <body style="max-width: 800px">
+    <section>
+      <a href="/"><img src="/caveman.jpg" width="100px" /></a>
+    </section>
+
+    <h1>Make an HTTP Server</h1>
+    <ul>
+      <li>
+        <h2>
+          Add a dependency to the <code>ring</code> library to your
+          <code>deps.edn</code>
+        </h2>
+        <code>
+          <pre>
+{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.11.3"}
+        ring/ring {:mvn/version "1.12.2"}}}
+           </pre
+          >
+        </code>
+
+        <p>
+          Ring is the library most everyone in the Clojure world uses for this.
+        </p>
+      </li>
+      <li>
+        <h2>
+          Edit your <code>src/main.clj</code> file so it has the following
+          contents.
+        </h2>
+        <code>
+          <pre>
+(ns main
+  (:require [ring.adapter.jetty :as jetty]))
+
+(defn handler
+  [request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Hello, world"})
+
+(defn -main []
+  (jetty/run-jetty #'handler {:port 9999}))</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Run the server with <code>just run</code></h2>
+        <p>You should see a warning like the following. Ignore it for now.</p>
+        <code>
+          <pre>
+SLF4J: No SLF4J providers were found.
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>
+          Open your web browser and go to <code>http://localhost:9999</code>
+        </h2>
+      </li>
+    </ul>
+
+    <section>
+      <div>
+        <h1>
+          <a href="/tutorial/clojure/1_create_a_project.html"
+            >&larr; Create a Project</a
+          >
+        </h1>
+      </div>
+    </section>
+  </body>
+</html>

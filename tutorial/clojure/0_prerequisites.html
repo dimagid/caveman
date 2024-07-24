@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  </head>
+  <body style="max-width: 800px">
+    <section>
+      <a href="/"><img src="/caveman.jpg" width="100px" /></a>
+    </section>
+    <h1>Prerequisites</h1>
+    <ul>
+      <li>
+        <h2>Use Linux</h2>
+        <p>
+          You need a Linux or Linux-like computer. Windows Subsystem for Linux
+          (WSL) and MacOS should work just fine.
+        </p>
+        <p>
+          For Windows, you can find WSL setup instructions
+          <a href="https://learn.microsoft.com/en-us/windows/wsl/install"
+            >HERE</a
+          >
+        </p>
+      </li>
+      <li>
+        <h2>Install Just</h2>
+        <p>
+          This is a tool that will remember the commands you need to run to do
+          stuff. Remembering stuff is hard so you'll want this.
+        </p>
+        <p>
+          You can find installation instructions
+          <a href="https://github.com/casey/just?tab=readme-ov-file#packages"
+            >HERE</a
+          >
+        </p>
+      </li>
+      <li>
+        <h2>Install SDKMan</h2>
+        <p>This is a tool that helps you set up other tools.</p>
+        <code><pre>curl -s "https://get.sdkman.io" | bash</pre></code>
+      </li>
+      <li>
+        <h2>Install Java</h2>
+        <p>Once you have SDKMan, this shouldn't be that hard to do.</p>
+        <code><pre>sdk install java 22-tem</pre></code>
+      </li>
+      <li>
+        <h2>Install the Clojure CLI</h2>
+        <p>This is needed to run Clojure code.</p>
+        <p>
+          You can find installation instructions
+          <a href="https://clojure.org/guides/install_clojure">HERE</a>
+        </p>
+      </li>
+      <li>
+        <h2>Install MyBatis Migrations</h2>
+        <p>This will help us later when we need to work with a database.</p>
+        <code><pre>sdk install mybatis</pre></code>
+      </li>
+    </ul>
+
+    <section>
+      <div>
+        <h1>
+          <a href="/tutorial/clojure/1_create_a_project.html"
+            >&rarr; Create a Project</a
+          >
+        </h1>
+      </div>
+    </section>
+  </body>
+</html>
