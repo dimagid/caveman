@@ -1,4 +1,4 @@
-(ns main
+(ns example.main
   (:require [ring.adapter.jetty :as jetty]))
 
 (defn handler

@@ -46,6 +46,7 @@ Available recipes:
         <h2>Create a folder named <code>src</code></h2>
         <code><pre>$ mkdir -p src</pre></code>
       </li>
+
       <li>
         <h2>
           Put a file named <code>deps.edn</code> in that folder with the
@@ -62,6 +63,14 @@ Available recipes:
 </pre
           >
         </code>
+      </li>
+      <li>
+        <h2>Pick a top level namespace for your project.</h2>
+        <p>
+          For the rest of this we will use <code>example</code>, but feel free
+          to pick something else. Just replace <code>example</code> in all the
+          following instructions with whatever you picked
+        </p>
       </li>
       <li>
         <h2>
@@ -81,15 +90,15 @@ Available recipes:
         <h2>Run that file</h2>
         <code>
           <pre>
-$ clojure -M -m main
+$ clojure -M -m example.main
 Hello, world</pre
           >
         </code>
         <p>
           The first <code>-M</code> means you are want to run the function named
           <code>-main</code>. The second, lower-cased, <code>-m</code> means you
-          want to run the <code>-main</code> method in the
-          <code>main</code> namespace.
+          want to run the <code>-main</code> function in the
+          <code>example.main</code> namespace.
         </p>
       </li>
       <li>

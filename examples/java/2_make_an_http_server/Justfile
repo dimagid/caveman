@@ -1,0 +1,6 @@
+# Shows available recipies
+help:
+    just --list
+            
+run:
+    java src/example/Main.java

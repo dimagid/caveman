@@ -30,12 +30,12 @@
       </li>
       <li>
         <h2>
-          Edit your <code>src/main.clj</code> file so it has the following
+          Edit your <code>src/example/main.clj</code> file so it has the following
           contents.
         </h2>
         <code>
           <pre>
-(ns main
+(ns example.main
   (:require [ring.adapter.jetty :as jetty]))
 
 (defn handler
@@ -48,6 +48,31 @@
   (jetty/run-jetty #'handler {:port 9999}))</pre
           >
         </code>
+
+        <p>
+          The <code>handler</code> function takes in an HTTP Request as outlined
+          by
+          <a href="https://github.com/ring-clojure/ring/blob/master/SPEC.md">
+            The Ring Specification</a
+          >
+          and returns a map representing an HTTP Response.
+        </p>
+
+        <p>
+          When we call <code>jetty/start-jetty</code> we give it that
+          <code>handler</code> function. A small wrinkle is that little
+          <code>#'</code> in front. That makes it so that if you reload that
+          function in a <code>REPL</code> the server will use the new definition
+          right away.
+        </p>
+
+        <p>
+          For more details on how that works you can dig into
+          <a href="https://clojure.org/reference/vars">Clojure Vars</a>. All you
+          need to know is that when you want to pass a function as an argument
+          and have it work with the <code>REPL</code>, you need to put
+          <code>#'</code> in front.
+        </p>
       </li>
       <li>
         <h2>Run the server with <code>just run</code></h2>
@@ -69,6 +94,11 @@ SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.</pr
 
     <section>
       <div>
+        <h1>
+          <a href="/tutorial/clojure/3_start_an_nrepl_server.html"
+            >&rarr; Start an nREPL Server</a
+          >
+        </h1>
         <h1>
           <a href="/tutorial/clojure/1_create_a_project.html"
             >&larr; Create a Project</a

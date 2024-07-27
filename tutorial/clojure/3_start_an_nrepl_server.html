@@ -1,0 +1,79 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  </head>
+  <body style="max-width: 800px">
+    <section>
+      <a href="/"><img src="/caveman.jpg" width="100px" /></a>
+    </section>
+
+    <h1>Start an nREPL Server</h1>
+    <ul>
+      <li>
+        <h2>
+          Add an alias to your <code>deps.edn</code> for <code>nREPL</code>
+        </h2>
+        <code>
+          <pre>
+{...
+ :aliases {:nREPL
+            {:extra-deps
+              {nrepl/nrepl {:mvn/version "1.2.0"}}}}}
+           </pre
+          >
+        </code>
+      </li>
+
+      <li>
+        <h2>
+          Add a recipe to your <code>Justfile</code> for running
+          <code>nREPL</code>.
+        </h2>
+        <p>
+          Use <code>clojure -M:nREPL -m nrepl.cmdline</code> as the command. The
+          <code>-M:nREPL</code> activates the alias and
+          <code>-m nrepl.cmdline</code> launches the <code>nREPL</code>.
+        </p>
+        <code>
+          <pre>
+help:
+    just --list
+
+run:
+    clojure -M -m main
+
+nrepl:
+    clojure -M:nREPL -m nrepl.cmdline</pre
+          >
+        </code>
+      </li>
+
+      <li>
+        <h2>Connect to <code>nREPL</code> from your editor.</h2>
+        <p>
+          The instructions for this vary based on your editor. For the Clojure
+          VSCode plugin, the documentation is
+          <a href="https://calva.io/connect/">HERE</a>. For IntelliJ it is
+          <a href="https://cursive-ide.com/userguide/repl.html">HERE</a>.
+        </p>
+        <p>
+          Your editor likely also has a way to start its own
+          <code>nREPL</code> server. Feel free to use that if you like. The
+          important thing is that you are able to load code into a REPL as you
+          are making your program.
+        </p>
+      </li>
+    </ul>
+
+    <section>
+      <div>
+        <h1>
+          <a href="/tutorial/clojure/2_make_an_http_server.html"
+            >&larr; Make an HTTP Server</a
+          >
+        </h1>
+      </div>
+    </section>
+  </body>
+</html>

@@ -2,4 +2,4 @@ help:
     just --list
 
 run:
-    clojure -M -m main
+    clojure -M -m example.main
