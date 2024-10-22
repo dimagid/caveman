@@ -1,0 +1,159 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Read Environment Variables. </h1>
+<p>It might surprise you to learn that <code>postgres</code> is probably not going to be the password
+    for your production database.</p>
+<p>To have something that can work in development as well as where you deploy it, you should read
+your configuration using environment variables.</p>
+<ul>
+    <li>
+        <h2>Add <code>dotenv-java</code> to your <code>deps.edn</code>.</h2>
+        <p>There are more solutions to this - like <code>direnv</code> or bash profiles - but this
+        is the one we are going with for the moment.</p>
+
+        <code><pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        hiccup/hiccup {:mvn/version "2.0.0-RC3"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.3.955"}
+        org.postgresql/postgresql {:mvn/version "42.7.4"}
+        com.zaxxer/HikariCP {:mvn/version "5.1.0"}
+        <span style="font-weight: bold;">io.github.cdimascio/dotenv-java {:mvn/version "3.0.0"}</span>}
+ :aliases {:dev {:extra-paths ["dev" "test"]
+                 :extra-deps {nrepl/nrepl {:mvn/version "1.2.0"}
+                              lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
+           :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+    </li>
+    <li>
+        <h2>Add an <code>env</code> component to the system.</h2>
+        <p>This is all the other components will read from as they start up to access environment variables.
+        In this way we can make whatever is in <code>.env</code> be available as if it was an environment variable
+        in dev and use real environment variables when we deploy.</p>
+        <code><pre>(ns example.system
+  (:require [example.routes :as routes]
+            [next.jdbc.connection :as connection]
+            [ring.adapter.jetty :as jetty])
+  (:import (com.zaxxer.hikari HikariDataSource)
+           <span style="font-weight: bold;">(io.github.cdimascio.dotenv Dotenv)</span>
+           (org.eclipse.jetty.server Server)))
+
+(set! *warn-on-reflection* true)
+
+<span style="font-weight: bold;">(defn start-env
+  []
+  (Dotenv/load))</span>
+
+(defn start-db
+  []
+  (connection/->pool HikariDataSource
+                     {:dbtype "postgres"
+                      :dbname "postgres"
+                      :username "postgres"
+                      :password "postgres"}))
+
+(defn stop-db
+  [db]
+  (HikariDataSource/.close db))
+
+(defn start-server
+  [system]
+  (jetty/run-jetty
+   (partial #'routes/root-handler system)
+   {:port 9999
+    :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))
+
+(defn start-system
+  []
+  <span style="font-weight: bold;">(let [system-so-far {::env (start-env)}
+        system-so-far (merge system-so-far {::db (start-db)})]
+    (merge system-so-far {::server (start-server system-so-far)}))</span>)
+
+(defn stop-system
+  [system]
+  (stop-db (::db system))
+  (stop-server (::server system)))</pre></code>
+    </li>
+    <li>
+        <h2>Read the server <code>PORT</code>, <code>POSTGRES_USERNAME</code>, <code>POSTGRES_PASSWORD</code>
+        from the environment</h2>
+        <p>First add those values to the <code>.env</code> file.</p>
+        <code><pre>POSTGRES_USERNAME=postgres
+POSTGRES_PASSWORD=postgres
+PORT=9999</pre></code>
+        <p>Then read values off the <code>env</code> component when making other components.</p>
+        <code><pre>(ns example.system
+  (:require [example.routes :as routes]
+            [next.jdbc.connection :as connection]
+            [ring.adapter.jetty :as jetty])
+  (:import (com.zaxxer.hikari HikariDataSource)
+           (io.github.cdimascio.dotenv Dotenv)
+           (org.eclipse.jetty.server Server)))
+
+(set! *warn-on-reflection* true)
+
+(defn start-env
+  []
+  (Dotenv/load))
+
+(defn start-db
+  [<span style="font-weight: bold;">{::keys [env]}</span>]
+  (connection/->pool HikariDataSource
+                     {:dbtype "postgres"
+                      :dbname "postgres"
+                      :username <span style="font-weight: bold;">(Dotenv/.get env "POSTGRES_USERNAME")</span>
+                      :password <span style="font-weight: bold;">(Dotenv/.get env "POSTGRES_PASSWORD")</span>}))
+
+(defn stop-db
+  [db]
+  (HikariDataSource/.close db))
+
+(defn start-server
+  [{::keys [env] :as system}]
+  (jetty/run-jetty
+   (partial #'routes/root-handler system)
+   {:port  <span style="font-weight: bold;">(parse-long (Dotenv/.get env "PORT"))</span>
+    :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))
+
+(defn start-system
+  []
+  (let [system-so-far {::env (start-env)}
+        system-so-far (merge system-so-far {::db <span style="font-weight: bold;">(start-db system-so-far)</span>})]
+    (merge system-so-far {::server (start-server system-so-far)})))
+
+(defn stop-system
+  [system]
+  (stop-db (::db system))
+  (stop-server (::server system)))</pre></code>
+
+        <p>I know, I can hear your Clojure senses tingling. Isn't <code>env</code> conceptually just a map? Why are we using
+        a Java library for this?</p>
+        <p>It boils down to two factors.</p>
+        <ol>
+            <li><code>dotenv-java</code> is more well maintained than Clojure equivalents. Not that things can't be "done" and not require further maintenance.
+            If you have a library you prefer, have at it.</li>
+            <li>It's conceptually a map, but we only are going to be reading it here and it being an opaque Java object
+            has the nice benefit of its <code>toString</code> implementation not leaking sensitive info by default.</li>
+        </ol>
+    </li>
+</ul>
+</body>
+</html>

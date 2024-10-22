@@ -1,0 +1,1 @@
+["^ ","~$-main",["^ ","~:row",4,"~:col",1,"~:fixed-arities",["~#set",[0]],"~:name","^0","~:ns","~$example.main","~:top-ns","^7","~:arities",["^ ","~i0",["^ ","~:ret",["^ ","~:type","~:map","~:val",["^ ","~:example.system/server",["^ ","^1",22,"~:end-row",22,"^2",15,"~:end-col",43]],"^1",22,"^2",5,"^?",22,"^@",44]]],"^;","~:fn"],"~:filename","./src/example/main.clj"]
