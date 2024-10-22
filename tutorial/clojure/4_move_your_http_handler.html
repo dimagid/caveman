@@ -1,0 +1,82 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  </head>
+  <body style="max-width: 800px">
+    <section>
+      <a href="/"><img src="/caveman.jpg" width="100px" /></a>
+    </section>
+
+    <h1>Move your HTTP Handler to its own namespace.</h1>
+    <ul>
+      <li>
+        <h2>Create a file named <code>src/example/routes.clj</code></h2>
+        <p>
+          <code>
+            <pre>
+(ns example.routes)
+           </pre
+            >
+          </code>
+        </p>
+      </li>
+
+      <li>
+        <h2>
+          Cut and paste the <code>handler</code> function to that namespace.
+        </h2>
+        <code>
+          <pre>
+(ns example.routes)
+
+(defn handler
+  [request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Hello, world"})
+             </pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>
+          Make your <code>example.main</code> namespace refer to that function.
+        </h2>
+        <p>Make sure to retain the <code>#'</code>.</p>
+        <code>
+          <pre>
+(ns example.main
+  (:require [ring.adapter.jetty :as jetty]
+            [example.routes :as routes]))
+
+(defn -main []
+  (jetty/run-jetty #'routes/handler {:port 9999}))
+             </pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>
+          Test to make sure your server still works with <code>just run</code>
+        </h2>
+        <p>Nothing behavior-wise should be different.</p>
+      </li>
+    </ul>
+
+    <section>
+      <div>
+        <h1>
+          <a href="/tutorial/clojure/5_create_a_system_namespace.html"
+            >&rarr; Create a System Namespace</a
+          >
+        </h1>
+        <h1>
+          <a href="/tutorial/clojure/3_start_an_nrepl_server.html"
+            >&larr; Start an nREPL Server</a
+          >
+        </h1>
+      </div>
+    </section>
+  </body>
+</html>

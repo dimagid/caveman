@@ -1,0 +1,207 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Pick an HTTP Handler based on Route. </h1>
+<p>HTTP requests have a structure like the following (<a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages">taken from MDN</a>.)</p>
+<p>
+    <img width="300px" src="7/http.png"/>
+</p>
+
+<p>They have a "method" (POST, GET, PUT, ETC), some headers (key value pairs of info), a body (where the juice is),
+    and a route.</p>
+<p>In the image the route is <code>/create-page</code>. It's very common to want to have your server do different
+    things when you get requests on different routes.</p>
+<ul>
+    <li>
+        <h2>Add <code>reitit</code> to your deps.edn</h2>
+        <p><code>reitit</code> is one of many so-called "routing libraries." These inspect the data you get from an HTTP
+            request and pick a function to use to handle that request.</p>
+        <p>While it is certainly possible to make something like this
+            yourself, it's not worth your time.</p>
+        <code>
+          <pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        <span style="font-weight: bold;">metosin/reitit-ring {:mvn/version "0.5.5"}</span>}
+ :aliases {:nREPL
+            {:extra-paths ["dev"]
+             :extra-deps
+              {nrepl/nrepl {:mvn/version "1.2.0"}}}
+           :dev {:extra-paths ["dev"]}}}</pre
+          >
+        </code>
+    </li>
+    <li>
+        <h2>Make a <code>routes</code> function in the <code>routes</code> namespace.</h2>
+        <p>This should take in the <code>system</code> (to be able to forward it to different handlers)
+            and return a data structure which specifies the routes in your application.</p>
+        <p>This should be a "vector of vectors." Easier to show than to explain.</p>
+        <code><pre>(ns example.routes)
+
+(defn <span style="font-weight: bold;">hello-handler</span>
+  [request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Hello, world"})
+
+<span style="font-weight: bold;">(defn goodbye-handler
+  [request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Goodbye, world"})
+
+(defn routes
+  [system]
+  [["/"        {:get {:handler handler}}]
+   ["/goodbye" {:get {:handler goodbye-handler}}]])</span></pre>
+        </code>
+    </li>
+    <li>
+        <h2>Forward the <code>system</code> to your handlers.</h2>
+        <p>This is crucial. If you don't do this then you'll have to turn to the dark arts
+        in order to make database queries.</p>
+        <p>There are a few ways to do this forwarding, but the simplest is to have your handlers take an extra
+        argument and use <code>partial</code> to "partially apply" that argument. </p>
+        <p>Doing this you turn your handler from
+            a <code>f(system, request) -> response</code> to a <code>f(request) -> response</code>.</p>
+        <code><pre>(ns example.routes)
+
+(defn hello-handler
+  [<span style="font-weight: bold;">system</span> request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Hello, world"})
+
+(defn goodbye-handler
+  [<span style="font-weight: bold;">system</span> request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Goodbye, world"})
+
+(defn routes
+  [system]
+  [["/"        {:get {:handler <span style="font-weight: bold;">(partial #'hello-handler system)</span>}}]
+   ["/goodbye" {:get {:handler <span style="font-weight: bold;">(partial #'goodbye-handler system)</span>}}]])</pre></code>
+    </li>
+    <li>
+        <h2>Make a root handler</h2>
+        <p>This is the actual handler function that will be called for requests. In here we will make use of <code>routes</code>
+        and "compile" a ring handler.</p>
+        <p>If you are astute you will notice that we compile the routes on every request. This will be slow, but convenient
+        for development. Making it fast will come later.</p>
+        <code><pre>(ns example.routes
+  (:require <span style="font-weight: bold;">[reitit.ring :as reitit-ring]</span>))
+
+(defn hello-handler
+  [system request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Hello, world"})
+
+(defn goodbye-handler
+  [system request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Goodbye, world"})
+
+(defn routes
+  [system]
+  [["/"        {:get {:handler (partial #'hello-handler system)}}]
+   ["/goodbye" {:get {:handler (partial #'goodbye-handler system)}}]])
+
+<span style="font-weight: bold;">(defn root-handler
+  [system request]
+  (let [handler (reitit-ring/ring-handler
+                  (reitit-ring/router
+                    (routes system)))]
+    (handler request)))</span></pre></code>
+    </li>
+    <li>
+        <h2>Wire the root handler up to the <code>system</code></h2>
+        <p>This gets interesting because clearly the server itself needs access to the <code>system</code>
+        while itself being part of said <code>system</code></p>
+        <p>To handle this we will have a notion of a "system so far." Basically just "everything minus the server."
+        There are tricks to get the server passed down, but they aren't important enough now.</p>
+        <code><pre>(ns example.system
+  (:require [ring.adapter.jetty :as jetty]
+            [example.routes :as routes])
+  (:import (org.eclipse.jetty.server Server)))
+
+(defn start-server
+  [<span style="font-weight: bold;">system</span>]
+  (jetty/run-jetty
+    <span style="font-weight: bold;">(partial #'routes/root-handler system)</span>
+    {:port 9999
+     :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))
+
+(defn start-system
+  []
+  <span style="font-weight: bold;">(let [system-so-far {}]
+    {::server (start-server system-so-far)})</span>)
+
+(defn stop-system
+  [system]
+  (stop-server (::server system)))</pre></code>
+    </li>
+    <li>
+        <h2>  Open your web browser and go to <code>http://localhost:9999</code> and <code>http://localhost:9999/goodbye</code>
+        </h2>
+        <p>You should see the hello and goodbye example responses, which means that routing is happening as expected</p>
+    </li>
+    <li>
+        <h2>Add a "Not Found" handler.</h2>
+        <p>This is just a fallback for when someone hits a route that you didn't expect them to.
+        Dedicated 404 responses are preferable to the server barfing in a strange way.</p>
+        <code><pre>(ns example.routes
+  (:require [reitit.ring :as reitit-ring]))
+
+(defn hello-handler
+  [system request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Hello, world"})
+
+(defn goodbye-handler
+  [system request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "Goodbye, world"})
+
+(defn routes
+  [system]
+  [["/"        {:get {:handler (partial #'hello-handler system)}}]
+   ["/goodbye" {:get {:handler (partial #'goodbye-handler system)}}]])
+
+<span style="font-weight: bold;">(defn not-found-handler
+  [_request]
+  {:status 404
+   :headers {"Content-Type" "text/html"}
+   :body "Not Found"})</span>
+
+(defn root-handler
+  [system request]
+  (let [handler (reitit-ring/ring-handler
+                  (reitit-ring/router
+                    (routes system))
+                  <span style="font-weight: bold;">#'not-found-handler</span>)]
+    (handler request)))</pre></code>
+    </li>
+    <li>
+        <h2>Try a non-existent route like <code>/abc</code>
+        </h2>
+        <p>You should see the 404 response.</p>
+    </li>
+</ul>
+</body>
+</html>

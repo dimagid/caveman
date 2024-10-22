@@ -1,0 +1,95 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Render HTML. </h1>
+<p>For websites, which is not what all HTTP servers are, your primary task is often to produce HTML
+    responses.</p>
+<p>The point of logging is to have some visibility into your running program. For things deployed on a thousand machines
+    this is a harder problem than a handful of servers. All we need is a structured way of outputting text.</p>
+<ul>
+    <li>
+        <h2>Add <code>hiccup</code> to your deps.edn</h2>
+        <p>This is a library which takes data structures and produces HTML.</p>
+        <p>The upside to using something like this to produce HTML is that you can have
+        your HTML embedded directly into the code without a separate templating language.</p>
+        <p>The downside is that your HTML won't be already in HTML form, which precludes usage
+        of some tooling and people.</p>
+        <code>
+            <pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        <span style="font-weight: bold;">hiccup/hiccup {:mvn/version "2.0.0-RC3"}</span>}
+ :aliases {:nREPL
+            {:extra-paths ["dev"]
+             :extra-deps
+              {nrepl/nrepl {:mvn/version "1.2.0"}}}
+           :dev {:extra-paths ["dev"]}}}</pre>
+        </code>
+    </li>
+    <li>
+        <h2>Render HTML in your handlers</h2>
+        <p>It's important to only use the <code>hiccup2.core</code> namespace. The <code>hiccup.core</code>
+        one has some intrinsic problems you don't want to deal with.</p>
+        <p>Similarly to <code>reitit</code> routes, the input here is a data structure. There are tools for converting HTML
+        snippets you want to use automatically into this hiccup format. Some are documented <a href="https://github.com/weavejester/hiccup/wiki/Converting-html-to-hiccup">HERE</a>.</p>
+        <code><pre>(ns example.routes
+  (:require [reitit.ring :as reitit-ring]
+            [clojure.tools.logging :as log]
+            <span style="font-weight: bold;">[hiccup2.core :as hiccup]</span>))
+
+(defn hello-handler
+  [system request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body <span style="font-weight: bold;">(str
+           (hiccup/html
+             [:html
+              [:body
+               [:h1 "Hello, world"]]]))</span>})
+
+(defn goodbye-handler
+  [system request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body <span style="font-weight: bold;">(str
+           (hiccup/html
+             [:html
+              [:body
+               [:h1 "Goodbye, world"]]]))</span>})
+
+(defn routes
+  [system]
+  [["/"        {:get {:handler (partial #'hello-handler system)}}]
+   ["/goodbye" {:get {:handler (partial #'goodbye-handler system)}}]])
+
+(defn not-found-handler
+  [_request]
+  {:status 404
+   :headers {"Content-Type" "text/html"}
+   :body <span style="font-weight: bold;">(str
+           (hiccup/html
+             [:html
+              [:body
+               [:h1 "Not Found"]]]))</span>})
+
+(defn root-handler
+  [system request]
+  (log/info (str (:request-method request) " - " (:uri request)))
+  (let [handler (reitit-ring/ring-handler
+                  (reitit-ring/router
+                    (routes system))
+                  #'not-found-handler)]
+    (handler request)))</pre></code>
+    </li>
+</ul>
+</body>
+</html>

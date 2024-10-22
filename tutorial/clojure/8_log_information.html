@@ -1,0 +1,72 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Log Information. </h1>
+<p>There is a long and storied history behind logging on the JVM, and by extension Clojure.</p>
+<p>The point of logging is to have some visibility into your running program. For things deployed on a thousand machines
+this is a harder problem than a handful of servers. All we need is a structured way of outputting text.</p>
+<ul>
+    <li>
+        <h2>Add <code>tools.logging</code> to your deps.edn</h2>
+        <p>This is your "logging facade" - what you will use to emit logs.</p>
+        <code>
+          <pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        <span style="font-weight: bold;">org.clojure/tools.logging {:mvn/version "1.3.0"}</span>}
+ :aliases {:nREPL
+            {:extra-paths ["dev"]
+             :extra-deps
+              {nrepl/nrepl {:mvn/version "1.2.0"}}}
+           :dev {:extra-paths ["dev"]}}}</pre
+          >
+        </code>
+    </li>
+    <li>
+        <h2>Add <code>slf4j-simple</code> to your deps.edn</h2>
+        <p>This is your "logging implementation" - the thing that determines how logs are actually emitted.</p>
+        <p><code>slf4j-simple</code> is, as the name suggests, the simplest possible implementation. It outputs
+        all logs to standard error. If that is not enough for you then you can pick something else.</p>
+        <p>Once you add this you should notice that you no longer get warnings when you start up. In addition,
+            you will start to see logs from the underlying server libraries.</p>
+        <code><pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        <span style="font-weight: bold;">org.slf4j/slf4j-simple {:mvn/version "2.0.16"}</span>}
+ :aliases {:nREPL
+            {:extra-paths ["dev"]
+             :extra-deps
+              {nrepl/nrepl {:mvn/version "1.2.0"}}}
+           :dev {:extra-paths ["dev"]}}}</pre></code>
+    </li>
+    <li>
+        <h2>Make a log</h2>
+        <p>Since the server doesn't do much yet, emitting a log for each request that comes in
+            is a decent enough start.</p>
+        <code><pre>(ns example.routes
+  (:require [reitit.ring :as reitit-ring]
+            <span style="font-weight: bold;">[clojure.tools.logging :as log]</span>))
+
+...
+
+(defn root-handler
+  [system request]
+  <span style="font-weight: bold;">(log/info (str (:request-method request) " - " (:uri request)))</span>
+  (let [handler (reitit-ring/ring-handler
+                  (reitit-ring/router
+                    (routes system))
+                  #'not-found-handler)]
+    (handler request)))</pre></code>
+    </li>
+</ul>
+</body>
+</html>

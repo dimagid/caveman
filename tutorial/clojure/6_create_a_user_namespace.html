@@ -1,0 +1,183 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+
+<h1>Create a development-only <code>user</code> Namespace.</h1>
+<p>While doing interactive development, it's important to have a place to put
+    code that is useful for that purpose, but maybe isn't appropriate for the software you ultimately ship.</p>
+<ul>
+    <li>
+        <h2>Create a file named <code>dev/user.clj</code></h2>
+        <p>
+            Most REPLs will automatically load in any <code>user</code> namespace.
+            This makes it the easiest place to put "development only" code.
+        </p>
+        <code>
+          <pre>
+(ns user)
+           </pre
+           >
+        </code>
+    </li>
+    <li>
+        <h2>Add a <code>:dev</code> alias to your <code>deps.edn</code>.</h2>
+        <p>
+            You want to have the <code>dev</code> folder included as an extra
+            path.
+        </p>
+
+        <code>
+          <pre>
+{:paths ["src"]
+ :deps {...}
+ :aliases {...
+           :dev {:extra-paths ["dev"]}}}
+             </pre
+             >
+        </code>
+    </li>
+    <li>
+        <h2>
+            Add the <code>dev</code> folder to your <code>:nREPL</code> alias as
+            well.
+        </h2>
+        <p>
+            Seeing as you will only be using <code>nREPL</code> during
+            development, this is needed. We can merge <code>:dev</code> and
+            <code>:nREPL</code> eventually if they become too much to keep in
+            sync.
+        </p>
+        <code>
+          <pre>
+{:paths ["src"]
+ :deps {...}
+ :aliases {:nREPL
+            {:extra-paths ["dev"]
+             :extra-deps
+              {nrepl/nrepl {:mvn/version "1.2.0"}}}
+           :dev {:extra-paths ["dev"]}}}
+             </pre
+             >
+        </code>
+    </li>
+    <li>
+        <h2>
+            Put a <code>def</code> at the top assigning <code>system</code> to
+            <code>nil</code>.
+        </h2>
+        <code>
+          <pre>
+<span style="font-weight: bold;">(ns user)
+
+(def system nil)</span></pre>
+        </code>
+    </li>
+    <li>
+        <h2>Put a <code>start-system!</code> function in <code>user</code>.</h2>
+        <p>
+            This should call <code>start-system</code> from
+            <code>example.system</code> and set the value of the
+            <code>system</code> var to the return value.
+        </p>
+        <p>
+            If a system is already started - which you can tell by checking is
+            <code>system</code> is <code>nil</code> - you can print a message and
+            exit early.
+        </p>
+        <code>
+          <pre>
+(ns user
+  (:require [example.system :as system]))
+
+(def system nil)
+
+<span style="font-weight: bold;">(defn start-system!
+  []
+  (if system
+    (println "Already Started")
+    (alter-var-root #'system (constantly (system/start-system)))))</span></pre>
+        </code>
+    </li>
+    <li>
+        <h2>Put a <code>stop-system!</code> function in <code>user</code>.</h2>
+        <p>If no system has been started this should be a noop.</p>
+        <code>
+          <pre>
+(ns user
+  (:require [example.system :as system]))
+
+(def system nil)
+
+(defn start-system!
+  []
+  (if system
+    (println "Already Started")
+    (alter-var-root #'system (constantly (system/start-system)))))
+
+<span style="font-weight: bold;">(defn stop-system!
+  []
+  (when system
+    (system/stop-system system)))</span></pre
+          >
+        </code>
+    </li>
+    <li>
+        <h2>Put a <code>restart-system</code> function in <code>user</code></h2>
+        <p>When you want a quick way to turn your system off and back on again, it's nice to have such a function
+            available.</p>
+    </li>
+    <li>
+        <h2>Put a <code>server</code> function in <code>user</code>.</h2>
+        <p>
+            The purpose of this will be to let code access the running
+            <code>server</code>.
+        </p>
+        <code>
+          <pre>
+(ns user
+  (:require [example.system :as system]))
+
+(def system nil)
+
+(defn start-system!
+  []
+  (if system
+    (println "Already Started")
+    (alter-var-root #'system (constantly (system/start-system)))))
+
+(defn stop-system!
+  []
+  (when system
+    (system/stop-system system)))
+
+<span style="font-weight: bold;">(defn server
+  []
+  (::system/server system))</span></pre>
+        </code>
+    </li>
+    <li>
+        <h2>Configure your editor</h2>
+        <p>Now that we have a <code>:dev</code> alias which includes your development only code,
+            you need to make sure your editor uses that alias when you are developing.</p>
+        <p>Again I will defer to the official documentation of those tools. For both Calva and Cursive its
+            simply a button to click in the UI.</p>
+    </li>
+</ul>
+
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/4_move_your_http_handler.html"
+            >&larr; Move your HTTP Handler to its own namespace.</a
+            >
+        </h1>
+    </div>
+</section>
+</body>
+</html>

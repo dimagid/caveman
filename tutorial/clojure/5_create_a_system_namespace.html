@@ -1,0 +1,178 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  </head>
+  <body style="max-width: 800px">
+    <section>
+      <a href="/"><img src="/caveman.jpg" width="100px" /></a>
+    </section>
+
+    <h1>Create a System Namespace</h1>
+    <p>
+      This is where you will put all the code for "stateful" things like
+      database connections and clients to external services.
+    </p>
+    <ul>
+      <li>
+        <h2>Create a file named <code>src/example/system.clj</code></h2>
+        <code>
+          <pre>
+(ns example.system)
+           </pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Put a <code>start-server</code> function in that namespace.</h2>
+        <p>
+          This should do what the <code>example.main</code> namespace is
+          currently doing.
+        </p>
+        <p>
+          Just be sure to add a <code>:join? false</code> to the set of
+          arguments. That way you can start the server and have it run in the
+          background.
+        </p>
+        <code>
+          <pre>
+(ns example.system
+  (:require [ring.adapter.jetty :as jetty]
+            [example.routes :as routes]))
+
+(defn start-server
+  []
+  (jetty/run-jetty #'routes/handler {:port 9999
+                                     :join? false}))
+             </pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Put a <code>stop-server</code> function in that namespace.</h2>
+        <p>
+          This should take the server as its only argument and call
+          <code>.stop</code> on it.
+        </p>
+        <code>
+          <pre>
+(ns example.system
+  (:require [ring.adapter.jetty :as jetty]
+            [example.routes :as routes])
+  (:import (org.eclipse.jetty.server Server)))
+
+(defn start-server
+  []
+  (jetty/run-jetty #'routes/handler {:port 9999
+                                     :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Put a <code>start-system</code> function in that namespace.</h2>
+        <p>
+          This should return a map where the result of calling
+          <code>start-server</code> is put under the <code>::server</code> key.
+        </p>
+        <p>
+          If you aren't familiar with the syntax, <code>::server</code> will
+          expand out to <code>:example.system/server</code>
+        </p>
+        <code>
+          <pre>
+(ns example.system
+  (:require [ring.adapter.jetty :as jetty]
+            [example.routes :as routes])
+  (:import (org.eclipse.jetty.server Server)))
+
+(defn start-server
+  []
+  (jetty/run-jetty #'routes/handler {:port 9999
+                                     :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))
+
+(defn start-system
+  []
+  {::server (start-server)})</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>Put a <code>stop-system</code> function in that namespace.</h2>
+        <p>
+          This should call <code>stop-server</code> on a server found under the
+          <code>::server</code> key
+        </p>
+        <code>
+          <pre>
+(ns example.system
+  (:require [ring.adapter.jetty :as jetty]
+            [example.routes :as routes])
+  (:import (org.eclipse.jetty.server Server)))
+
+(defn start-server
+  []
+  (jetty/run-jetty #'routes/handler {:port 9999
+                                     :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))
+
+(defn start-system
+  []
+  {::server (start-server)})
+
+(defn stop-system
+  [system]
+  (stop-server (::server system)))</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>
+          Update the <code>example.main</code> namespace to use
+          <code>start-system</code>.
+        </h2>
+        <code>
+          <pre>
+(ns example.main
+  (:require [ring.adapter.jetty :as jetty]
+            [example.system :as system]))
+
+(defn -main []
+  (system/start-system))</pre
+          >
+        </code>
+      </li>
+      <li>
+        <h2>
+          Test to make sure your server still works with <code>just run</code>
+        </h2>
+        <p>Nothing behavior-wise should be different.</p>
+      </li>
+    </ul>
+
+    <section>
+      <div>
+        <h1>
+          <a href="/tutorial/clojure/6_create_a_user_namespace.html"
+            >&rarr; Create a development-only <code>user</code> Namespace.</a
+          >
+        </h1>
+        <h1>
+          <a href="/tutorial/clojure/4_move_your_http_handler.html"
+            >&larr; Move your HTTP Handler to its own namespace.</a
+          >
+        </h1>
+      </div>
+    </section>
+  </body>
+</html>

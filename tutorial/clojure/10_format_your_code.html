@@ -1,0 +1,62 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Format your code. </h1>
+<p>When software is worked on by more than one person, disagreements on how that
+    software is built will arise. This is normal, but one must take care to not
+let unproductive disagreements dominate their time.</p>
+<p>How code is formatted is a common source unproductive disagreements. As such, leaving that to automated tooling
+can be a good idea.</p>
+<ul>
+    <li>
+        <h2>Add an alias for <code>cljfmt</code> to your deps.edn</h2>
+        <p>We are ultimately going to rely on our <code>Justfile</code>
+        so we are going to make a regular alias, not one with <code>:main-opts</code></p>
+        <code><pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        hiccup/hiccup {:mvn/version "2.0.0-RC3"}}
+ :aliases {:nREPL
+            {:extra-paths ["dev"]
+             :extra-deps
+              {nrepl/nrepl {:mvn/version "1.2.0"}}}
+           :dev {:extra-paths ["dev"]}
+           <span style="font-weight: bold;">:format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}</span>}}</pre></code>
+    </li>
+    <li>
+        <h2>Make a <code>.cljfmt.edn</code></h2>
+        <p>This file is where you can put configuration for <code>cljfmt</code>. I tend to think
+        that <code>sort-ns-references?</code> should be on for my projects, so lets use that as the example.</p>
+        <code><pre>{:sort-ns-references? true}</pre></code>
+    </li>
+    <li>
+        <h2>Add recipes to your <code>Justfile</code> for checking and fixing the format of your code
+        </h2>
+        <p>Checking format without fixing it is useful to make automatic checks in CI.</p>
+        <code><pre>help:
+    just --list
+
+run:
+    clojure -M -m example.main
+
+nrepl:
+    clojure -M:nREPL -m nrepl.cmdline
+
+<span style="font-weight: bold;">format_check:
+    clojure -M:format -m cljfmt.main check src dev
+
+format:
+    clojure -M:format -m cljfmt.main fix src dev</span></pre></code>
+    </li>
+</ul>
+</body>
+</html>
