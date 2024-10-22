@@ -5,4 +5,4 @@ run:
     clojure -M -m example.main
 
 nrepl:
-    clojure -M:nREPL -m nrepl.cmdline
+    clojure -M:dev -m nrepl.cmdline

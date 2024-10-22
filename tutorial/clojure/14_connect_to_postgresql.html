@@ -1,0 +1,119 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Connect to Postgresql. </h1>
+<p>For a majority of applications you should <a href="">just use Postgresql</a>. I know I'm writing for
+    an audience that loves their Datomics and XTDBs, but the rest of this is focused on the Postgresql life path.</p>
+<p>If you get to the end I'm sure it would be clear how you would slot in your alternative database of choice.</p>
+<ul>
+    <li>
+        <h2>Add <code>next.jdbc</code>, the Postgres JDBC driver, and <code>HikariCP</code> to your <code>deps.edn</code>.</h2>
+        <p>JDBC is how most everything on the JVM talks to their databases. <code>next.jdbc</code>
+        is a wrapper of that for Clojure programs.</p>
+        <p>All you need to do to be able to use the Postgres driver is to have it in your dependencies.</p>
+        <p><code>HikariCP</code> is a connection pooling library. You want this so that you don't
+        need to establish a totally fresh connection on every database query.</p>
+        <code><pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        hiccup/hiccup {:mvn/version "2.0.0-RC3"}
+        <span style="font-weight: bold;">com.github.seancorfield/next.jdbc {:mvn/version "1.3.955"}
+        org.postgresql/postgresql {:mvn/version "42.7.4"}
+        com.zaxxer/HikariCP {:mvn/version "5.1.0"}</span>}
+ :aliases {:dev {:extra-paths ["dev" "test"]
+                 :extra-deps {nrepl/nrepl {:mvn/version "1.2.0"}
+                              lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
+           :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+    </li>
+
+    <li>
+        <h2>Add code to connect to Postgres into your <code>system</code> namespace.</h2>
+        <p>This should include the code to start and stop the connections as well as the code to
+        attach the "<code>db</code>" to the <code>system</code></p>
+        <code><pre>(ns example.system
+  (:require [example.routes :as routes]
+            <span style="font-weight: bold;">[next.jdbc.connection :as connection]</span>
+            [ring.adapter.jetty :as jetty])
+  (:import <span style="font-weight: bold;">(com.zaxxer.hikari HikariDataSource)</span>
+           (org.eclipse.jetty.server Server)))
+
+(set! *warn-on-reflection* true)
+
+<span style="font-weight: bold;">(defn start-db
+  []
+  (connection/->pool HikariDataSource
+                     {:dbtype "postgres"
+                      :dbname "postgres"
+                      :username "postgres"
+                      :password "postgres"}))
+
+(defn stop-db
+  [db]
+  (HikariDataSource/.close db))</span>
+
+(defn start-server
+  [system]
+  (jetty/run-jetty
+   (partial #'routes/root-handler system)
+   {:port 9999
+    :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))
+
+(defn start-system
+  []
+  <span style="font-weight: bold;">(let [system-so-far {::db (start-db)}]
+    (merge system-so-far {::server (start-server system-so-far)}))</span>)
+
+(defn stop-system
+  [system]
+  <span style="font-weight: bold;">(stop-db (::db system))</span>
+  (stop-server (::server system)))</pre></code>
+    </li>
+    <li>
+        <h2>Query the database in one of your handlers</h2>
+        <p>To get access to parts of the system, we use an <code>:as-alias</code> require in our <code>routes</code> along
+            with destructuring. If we didn't use <code>:as-alias</code> then there would be circular namespace dependencies, which is no good.
+        Not having the alias at all would be cumbersome as well.</p>
+        <code><pre>(ns example.routes
+  (:require [clojure.tools.logging :as log]
+            <span style="font-weight: bold;">[example.system :as-alias system]</span>
+            [hiccup2.core :as hiccup]
+            <span style="font-weight: bold;">[next.jdbc :as jdbc]</span>
+            [reitit.ring :as reitit-ring]))
+
+(defn hello-handler
+  [<span style="font-weight: bold;">{::system/keys [db]}</span> _request]
+  <span style="font-weight: bold;">(let [{:keys [planet]} (jdbc/execute-one!
+                          db
+                          ["SELECT 'earth' as planet"])]
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (str
+            (hiccup/html
+             [:html
+              [:body
+               [:h1 (str "Hello, " planet)]]]))})</span>)
+
+...
+</pre></code>
+    </li>
+    <li>
+        <h2>Verify that connecting to the database works.</h2>
+        <p>Visit the route you added database logic to. See that the query does get executed.</p>
+    </li>
+</ul>
+</body>
+</html>

@@ -2,12 +2,12 @@
 <module type="JAVA_MODULE" version="4">
   <component name="BuildSystem">
     <option name="buildSystemId" value="CLOJURE_DEPS" />
-    <option name="displayName" value="12_run_tests" />
+    <option name="displayName" value="14_connect_to_postgresql" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/dev" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/dev" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
@@ -17,6 +17,7 @@
     <orderEntry type="library" name="Deps: lambdaisland/deep-diff2:2.11.216" level="project" />
     <orderEntry type="library" name="Deps: commons-codec:1.15" level="project" />
     <orderEntry type="library" name="Deps: org.eclipse.jetty/jetty-xml:11.0.24" level="project" />
+    <orderEntry type="library" name="Deps: com.zaxxer/HikariCP:5.1.0" level="project" />
     <orderEntry type="library" name="Deps: org.eclipse.jetty/jetty-servlet:11.0.24" level="project" />
     <orderEntry type="library" name="Deps: ring/ring-devel:1.13.0" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/tools.logging:1.3.0" level="project" />
@@ -37,6 +38,7 @@
     <orderEntry type="library" name="Deps: ring/ring-jetty-adapter:1.13.0" level="project" />
     <orderEntry type="library" name="Deps: commons-io:2.17.0" level="project" />
     <orderEntry type="library" name="Deps: org.eclipse.jetty.websocket/websocket-core-server:11.0.24" level="project" />
+    <orderEntry type="library" name="Deps: org.postgresql/postgresql:42.7.4" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/tools.namespace:1.5.0" level="project" />
     <orderEntry type="library" name="Deps: fipp:0.6.26" level="project" />
     <orderEntry type="library" name="Deps: com.nextjournal/beholder:1.0.2" level="project" />
@@ -58,20 +60,25 @@
     <orderEntry type="library" name="Deps: org.eclipse.jetty/jetty-webapp:11.0.24" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/java.classpath:1.1.0" level="project" />
     <orderEntry type="library" name="Deps: ns-tracker:1.0.0" level="project" />
+    <orderEntry type="library" name="Deps: com.github.seancorfield/next.jdbc:1.3.955" level="project" />
     <orderEntry type="library" name="Deps: crypto-random:1.2.1" level="project" />
     <orderEntry type="library" name="Deps: ring/ring-codec:1.2.0" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/core.rrb-vector:0.1.2" level="project" />
     <orderEntry type="library" name="Deps: org.ring-clojure/ring-websocket-protocols:1.13.0" level="project" />
     <orderEntry type="library" name="Deps: crypto-equality:1.0.1" level="project" />
+    <orderEntry type="library" name="Deps: org.checkerframework/checker-qual:3.42.0" level="project" />
     <orderEntry type="library" name="Deps: net.java.dev.jna/jna:5.12.1" level="project" />
     <orderEntry type="library" name="Deps: org.eclipse.jetty/jetty-io:11.0.24" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/tools.reader:1.4.0" level="project" />
     <orderEntry type="library" name="Deps: org.ring-clojure/ring-core-protocols:1.13.0" level="project" />
     <orderEntry type="library" name="Deps: org.tcrawley/dynapath:1.1.0" level="project" />
+    <orderEntry type="library" name="Deps: nrepl:1.2.0" level="project" />
     <orderEntry type="library" name="Deps: clj-stacktrace:0.2.8" level="project" />
     <orderEntry type="library" name="Deps: org.slf4j/slf4j-api:2.0.16" level="project" />
     <orderEntry type="library" name="Deps: hawk:0.2.11" level="project" />
+    <orderEntry type="library" name="Deps: camel-snake-kebab:0.4.3" level="project" />
     <orderEntry type="library" name="Deps: ring:1.13.0" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/java.data:1.2.107" level="project" />
     <orderEntry type="library" name="Deps: org.eclipse.jetty/jetty-server:11.0.24" level="project" />
     <orderEntry type="library" name="Deps: ring/ring-core:1.13.0" level="project" />
     <orderEntry type="library" name="Deps: meta-merge:1.0.0" level="project" />
