@@ -1,0 +1,127 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Lint your code. </h1>
+<p>Linting is just having tools look for common mistakes and reporting if they find any.</p>
+<p>Whereas we automatically format our code to avoid fights, we lint our code to make sure that
+    needed fights are had.</p>
+<ul>
+    <li>
+        <h2>Add an alias for <code>clj-kondo</code> to your deps.edn</h2>
+        <code><pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        hiccup/hiccup {:mvn/version "2.0.0-RC3"}}
+ :aliases {:nREPL
+            {:extra-paths ["dev"]
+             :extra-deps
+              {nrepl/nrepl {:mvn/version "1.2.0"}}}
+           :dev {:extra-paths ["dev"]}
+           :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
+           <span style="font-weight: bold;">:lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}</span>}}</pre></code>
+    </li>
+    <li>
+        <h2>Make a <code>.clj-kondo/config.edn</code></h2>
+        <p>This file is where you can put configuration for <code>clj-kondo</code>. There
+            are some nasty bugs that can come with unexpected reflection, so lets turn that warning on.</p>
+        <code><pre>{:linters {:warn-on-reflection {:level :warning}}}</pre></code>
+    </li>
+    <li>
+        <h2>Add a recipe to your <code>Justfile</code> for linting your code
+        </h2>
+        <code><pre>help:
+    just --list
+
+run:
+    clojure -M -m example.main
+
+nrepl:
+    clojure -M:nREPL -m nrepl.cmdline
+
+format_check:
+    clojure -M:format -m cljfmt.main check src dev
+
+format:
+    clojure -M:format -m cljfmt.main fix src dev
+
+<span style="font-weight: bold;">lint:
+    clojure -M:lint -m clj-kondo.main --lint .</span></pre></code>
+    </li>
+    <li>
+        <h2>Run <code>just lint</code></h2>
+        <p>This will show any places in the code the linter thinks are problematic.</p>
+        <code><pre>$ just lint
+clojure -M:lint -m clj-kondo.main --lint .
+./src/example/routes.clj:7:4: warning: unused binding system
+./src/example/routes.clj:7:11: warning: unused binding request
+./src/example/routes.clj:17:4: warning: unused binding system
+./src/example/routes.clj:17:11: warning: unused binding request
+./src/example/system.clj:15:3: warning: Var *warn-on-reflection* is not set in this namespace.
+</pre></code>
+    </li>
+
+    <li>
+        <h2>Fix any linting errors</h2>
+        <p>For fixing unused bindings, you can either remove the binding or prefix it with <code>_</code>.</p>
+        <code><pre>(ns example.routes
+  (:require [clojure.tools.logging :as log]
+            [hiccup2.core :as hiccup]
+            [reitit.ring :as reitit-ring]))
+
+(defn hello-handler
+  [<span style="font-weight: bold;">_system _request</span>]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str
+          (hiccup/html
+           [:html
+            [:body
+             [:h1 "Hello, world"]]]))})
+
+(defn goodbye-handler
+  [<span style="font-weight: bold;">_system _request</span>]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str
+          (hiccup/html
+           [:html
+            [:body
+             [:h1 "Goodbye, world"]]]))})
+
+...</pre></code>
+
+        <p>And that <code>:warn-on-reflection</code> linter will have you add
+            <code>(set! *warn-on-reflection* true)</code> to any files doing Java interop.</p>
+        <code><pre>(ns example.system
+  (:require [example.routes :as routes]
+            [ring.adapter.jetty :as jetty])
+  (:import (org.eclipse.jetty.server Server)))
+
+<span style="font-weight: bold;">(set! *warn-on-reflection* true)</span>
+
+(defn start-server
+  [system]
+  (jetty/run-jetty
+   (partial #'routes/root-handler system)
+   {:port 9999
+    :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))
+
+...</pre></code>
+
+    </li>
+</ul>
+</body>
+</html>

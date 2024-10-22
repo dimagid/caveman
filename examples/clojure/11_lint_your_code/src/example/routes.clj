@@ -4,7 +4,7 @@
             [reitit.ring :as reitit-ring]))
 
 (defn hello-handler
-  [system request]
+  [_system _request]
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (str
@@ -14,7 +14,7 @@
              [:h1 "Hello, world"]]]))})
 
 (defn goodbye-handler
-  [system request]
+  [_system _request]
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (str

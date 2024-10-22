@@ -3,6 +3,8 @@
             [ring.adapter.jetty :as jetty])
   (:import (org.eclipse.jetty.server Server)))
 
+(set! *warn-on-reflection* true)
+
 (defn start-server
   [system]
   (jetty/run-jetty
