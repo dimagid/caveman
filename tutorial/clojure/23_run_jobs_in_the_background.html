@@ -1,0 +1,378 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
+</section>
+<h1>Run Jobs in The Background </h1>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/23_run_jobs_in_the_background">(code for this section)</a></span>
+</sub>
+<p>It is exceedingly common to want a server to be doing things while it isn't actively handling an HTTP request.</p>
+<p>We call these things "background jobs" for they are jobs done in the back of the round.</p>
+<ul>
+    <li>
+        <h2>Add <code>proletarian</code> to your <code>deps.edn</code>.</h2>
+        <p>This is a library which manages pulling and executing background jobs scheduled in postgres.</p>
+        <code><pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        hiccup/hiccup {:mvn/version "2.0.0-RC3"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.3.955"}
+        org.postgresql/postgresql {:mvn/version "42.7.4"}
+        com.zaxxer/HikariCP {:mvn/version "5.1.0"}
+        io.github.cdimascio/dotenv-java {:mvn/version "3.0.0"}
+        ring/ring-defaults {:mvn/version "0.5.0"}
+        <span style="font-weight: bold;">msolli/proletarian {:mvn/version "1.0.86-alpha"}</span>}
+ :aliases {:dev {:extra-paths ["dev" "test"]
+                 :extra-deps {nrepl/nrepl {:mvn/version "1.2.0"}
+                              lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
+           :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+    </li>
+    <li>
+        <h2>Create a migration to run all the tables required for <code>proletarian</code></h2>
+        <p>The DDL is documented <a href="https://github.com/msolli/proletarian/blob/main/database/postgresql/tables.sql">in the repo for that project</a>.
+        All we need to do is slap that in a migration.</p>
+        <p>One difference is that we want to give defaults for <code>job_id</code>, <code>queue</code>, <code>attempts</code>,
+        <code>enqueued_at</code>, and <code>process_at</code>. This will make it easier to do inserts directly in triggers.</p>
+        <code><pre>-- // add_proletarian_tables
+CREATE SCHEMA IF NOT EXISTS proletarian;
+
+CREATE TABLE IF NOT EXISTS proletarian.job (
+    job_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),   -- job id, generated and returned by proletarian.job/enqueue!
+    queue       TEXT      NOT NULL DEFAULT ':proletarian/default', -- queue name
+    job_type    TEXT      NOT NULL, -- job type
+    payload     TEXT      NOT NULL, -- Transit-encoded job data
+    attempts    INTEGER   NOT NULL DEFAULT 0, -- Number of attempts. Starts at 0. Increments when the job is processed.
+    enqueued_at TIMESTAMP NOT NULL DEFAULT now(), -- When the job was enqueued (never changes)
+    process_at  TIMESTAMP NOT NULL DEFAULT now()  -- When the job should be run (updates every retry)
+);
+
+CREATE TABLE IF NOT EXISTS proletarian.archived_job (
+    job_id      UUID PRIMARY KEY,   -- Copied from job record.
+    queue       TEXT      NOT NULL, -- Copied from job record.
+    job_type    TEXT      NOT NULL, -- Copied from job record.
+    payload     TEXT      NOT NULL, -- Copied from job record.
+    attempts    INTEGER   NOT NULL, -- Copied from job record.
+    enqueued_at TIMESTAMP NOT NULL, -- Copied from job record.
+    process_at  TIMESTAMP NOT NULL, -- Copied from job record (data for the last run only)
+    status      TEXT      NOT NULL, -- success / failure
+    finished_at TIMESTAMP NOT NULL  -- When the job was finished (success or failure)
+);
+
+DROP INDEX IF EXISTS proletarian.job_queue_process_at;
+
+CREATE INDEX job_queue_process_at ON proletarian.job (queue, process_at);
+
+-- //@UNDO
+DROP TABLE proletarian.archived_job;
+
+DROP TABLE proletarian.job;
+
+DROP SCHEMA proletarian;
+</pre></code>
+    </li>
+
+    <li>
+        <h2>Make <code>src/example/jobs.clj</code> and put the following into it</h2>
+        <p>The logging code we want because, by default, the logger used by <code>proletarian</code>
+        is very noisy. You will see a log for every time it polls to see if there is a new job, which happens
+        frequently.</p>
+        <p>The handlers map we will fill in with handlers for different job types. <code>process-job</code>
+        will then delegate to that. We use this instead of <code>defmulti</code> because it's easier to reason about
+        whether a given job handler has been registered.</p>
+        <code><pre>(ns example.jobs
+  (:require [clojure.tools.logging :as log]
+            [proletarian.worker :as-alias worker]))
+
+(defn log-level
+  [x]
+  (case x
+    ::worker/queue-worker-shutdown-error :error
+    ::worker/handle-job-exception-with-interrupt :error
+    ::worker/handle-job-exception :error
+    ::worker/job-worker-error :error
+    ::worker/polling-for-jobs :debug
+    :proletarian.retry/not-retrying :error
+    :info))
+
+(defn logger
+  [x data]
+  (log/logp (log-level x) x data))
+
+(defn handlers
+  []
+  {})
+
+(defn process-job
+  [system job-type payload]
+  (if-let [handler (get (handlers) job-type)]
+    (handler system job-type payload)
+    (log/error "Unhandled Job Type" {:job-type job-type})))
+</pre></code>
+    </li>
+    <li>
+        <h2>Add code to start the worker to your <code>system</code> namespace.</h2>
+        <p>This will include wiring up the custom logger from earlier.</p>
+        <code><pre>(ns example.system
+  (:require [example.jobs :as jobs]
+            [example.routes :as routes]
+            [next.jdbc.connection :as connection]
+            <span style="font-weight: bold;">[proletarian.worker :as worker]</span>
+            [ring.adapter.jetty :as jetty])
+  (:import (com.zaxxer.hikari HikariDataSource)
+           (io.github.cdimascio.dotenv Dotenv)
+           (org.eclipse.jetty.server Server)))
+
+(set! *warn-on-reflection* true)
+
+(defn start-env
+  []
+  (Dotenv/load))
+
+(defn start-db
+  [{::keys [env]}]
+  (connection/->pool HikariDataSource
+                     {:dbtype "postgres"
+                      :dbname "postgres"
+                      :username (Dotenv/.get env "POSTGRES_USERNAME")
+                      :password (Dotenv/.get env "POSTGRES_PASSWORD")}))
+
+(defn stop-db
+  [db]
+  (HikariDataSource/.close db))
+
+<span style="font-weight: bold;">(defn start-worker
+  [{::keys [db] :as system}]
+  (let [worker (worker/create-queue-worker
+                db
+                (partial #'jobs/process-job system)
+                {:proletarian/log #'jobs/logger})]
+    (worker/start! worker)
+    worker))
+
+(defn stop-worker
+  [worker]
+  (worker/stop! worker))</span>
+
+(defn start-server
+  [{::keys [env] :as system}]
+  (jetty/run-jetty
+   (partial #'routes/root-handler system)
+   {:port  (parse-long (Dotenv/.get env "PORT"))
+    :join? false}))
+
+(defn stop-server
+  [server]
+  (Server/.stop server))
+
+(defn start-system
+  []
+  (let [system-so-far {::env (start-env)}
+        system-so-far (merge system-so-far {::db (start-db system-so-far)})
+        <span style="font-weight: bold;">system-so-far (merge system-so-far {::worker (start-worker system-so-far)})</span>]
+    (merge system-so-far {::server (start-server system-so-far)})))
+
+(defn stop-system
+  [system]
+  (stop-db (::db system))
+  (stop-server (::server system)))</pre></code>
+    </li>
+
+    <li>
+        <h2>Add <code>cheshire</code> to your <code>deps.edn</code></h2>
+        <p><code>cheshire</code> lets us read and write <code>JSON</code>. We want this because
+        we want to serialize our job data as <code>JSON</code>, not <code>Transit</code>. We want <i>that</i>
+        for reasons that will become clear soon.</p>
+        <code><pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        hiccup/hiccup {:mvn/version "2.0.0-RC3"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.3.955"}
+        org.postgresql/postgresql {:mvn/version "42.7.4"}
+        com.zaxxer/HikariCP {:mvn/version "5.1.0"}
+        io.github.cdimascio/dotenv-java {:mvn/version "3.0.0"}
+        ring/ring-defaults {:mvn/version "0.5.0"}
+        msolli/proletarian {:mvn/version "1.0.86-alpha"}
+        <span style="font-weight: bold;">cheshire/cheshire {:mvn/version "5.13.0"}</span>}
+ :aliases {:dev {:extra-paths ["dev" "test"]
+                 :extra-deps {nrepl/nrepl {:mvn/version "1.2.0"}
+                              lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
+           :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+    </li>
+    <li>
+        <h2>Create a <code>JSON</code> serializer in <code>src/example/jobs.clj</code></h2>
+        <code><pre>(ns example.jobs
+  (:require [clojure.tools.logging :as log]
+            [proletarian.worker :as-alias worker]
+            [proletarian.protocols :as protocols]
+            [cheshire.core :as cheshire]))
+
+<span style="font-weight: bold;">(def json-serializer
+  (reify protocols/Serializer
+    (encode [_ data]
+      (cheshire/generate-string data))
+    (decode [_ data-string]
+      (cheshire/parse-string data-string keyword))))</span>
+
+...</pre></code>
+    </li>
+    <li>
+        <h2>Use that <code>JSON</code> serializer when making your worker.</h2>
+        <code><pre>...
+
+(defn start-worker
+  [{::keys [db] :as system}]
+  (let [worker (worker/create-queue-worker
+                db
+                (partial #'jobs/process-job system)
+                {:proletarian/log #'jobs/logger
+                 <span style="font-weight: bold;">:proletarian/serializer jobs/json-serializer</span>})]
+    (worker/start! worker)
+    worker))
+
+...</pre></code>
+    </li>
+
+    <li>
+        <h2>Create a database trigger to insert a job whenever an insert happens on <code>prehistoric.cave</code></h2>
+        <p>This is why we added those default values in <code>proletarian.job</code>'s DDL and why we bother
+        using a <code>JSON</code> serializer specifically.</p>
+        <p>While it is perfectly fine to enqueue jobs in code, its often more appropriate to have jobs happen in response
+        to changes in data.</p>
+        <code><pre>-- // cave insert trigger
+CREATE OR REPLACE FUNCTION prehistoric_cave_insert_function ()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO proletarian.job(
+        job_type, payload
+    )
+    VALUES (
+        ':prehistoric.cave/insert', row_to_json(new)
+    );
+    return new;
+end;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prehistoric_cave_insert_trigger
+AFTER INSERT ON prehistoric.cave
+FOR EACH ROW
+EXECUTE PROCEDURE prehistoric_cave_insert_function();
+
+-- //@UNDO
+DROP TRIGGER prehistoric_cave_insert_trigger;
+DROP FUNCTION prehistoric_cave_insert_function;</pre></code>
+    </li>
+    <li>
+        <h2>Create a job handler that inserts a <code>hominid</code> whenever a cave is inserted.</h2>
+        <p>In this situation we could have just done the cascading insert in a trigger of its own. This is
+        the more generically useful approach though, so its worth showing.</p>
+        <code><pre>(ns example.cave.jobs
+  (:require [example.system :as-alias system]
+            [next.jdbc :as jdbc])
+  (:import (java.util UUID)))
+
+(defn process-cave-insert
+  [{::system/keys [db]} _job-type payload]
+  (jdbc/execute!
+   db
+   ["INSERT INTO prehistoric.hominid(name, cave_id)
+      VALUES (?, ?)"
+    "Grunk"
+    (UUID/fromString (:id payload))]))
+
+(defn handlers
+  []
+  {:prehistoric.cave/insert #'process-cave-insert})</pre></code>
+    </li>
+    <li>
+        <h2>Register that handler</h2>
+        <p>Very similar to HTTP handlers, whenever you have a background job to register you manually merge it with all the
+        existing ones.</p>
+        <code><pre>(ns example.jobs
+  (:require [cheshire.core :as cheshire]
+            [clojure.tools.logging :as log]
+            <span style="font-weight: bold;">[example.cave.jobs :as cave-jobs]</span>
+            [proletarian.protocols :as protocols]
+            [proletarian.worker :as-alias worker]))
+
+(def json-serializer
+  (reify protocols/Serializer
+    (encode [_ data]
+      (cheshire/generate-string data))
+    (decode [_ data-string]
+      (cheshire/parse-string data-string keyword))))
+
+(defn log-level
+  [x]
+  (case x
+    ::worker/queue-worker-shutdown-error :error
+    ::worker/handle-job-exception-with-interrupt :error
+    ::worker/handle-job-exception :error
+    ::worker/job-worker-error :error
+    ::worker/polling-for-jobs :debug
+    :proletarian.retry/not-retrying :error
+    :info))
+
+(defn logger
+  [x data]
+  (log/logp (log-level x) x data))
+
+(defn handlers
+  []
+  <span style="font-weight: bold;">(merge
+    {}
+    (cave-jobs/handlers))</span>)
+
+(defn process-job
+  [system job-type payload]
+  (if-let [handler (get (handlers) job-type)]
+    (handler system job-type payload)
+    (log/error "Unhandled Job Type" {:job-type job-type})))
+</pre></code>
+    </li>
+    <li>
+        <h2>Insert a Cave</h2>
+        <p>After all that setup, you can go to <code>/cave</code> and insert a cave. You should see logs
+        showing that the background job was picked up and run by the worker. If you look into the <code>prehistoric.hominid</code>
+        table you will see that the correct row was inserted.</p>
+    </li>
+</ul>
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/22_create_foreign_key_relationships.html"
+            >&larr; Create Foreign Key Relationships</a
+            >
+        </h1>
+    </div>
+</section>
+</body>
+</html>
