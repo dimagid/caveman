@@ -7,7 +7,7 @@
             [ring.util.response :as response]))
 
 (defn cave-create-handler
-  [{::system/keys [db worker]} request]
+  [{::system/keys [db]} request]
   (let [{:keys [description]} (:params request)]
     (jdbc/execute!
      db

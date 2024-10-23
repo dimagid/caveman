@@ -299,6 +299,8 @@ DROP FUNCTION prehistoric_cave_insert_function;</pre></code>
             [next.jdbc :as jdbc])
   (:import (java.util UUID)))
 
+(set! *warn-on-reflection* true)
+
 (defn process-cave-insert
   [{::system/keys [db]} _job-type payload]
   (jdbc/execute!
