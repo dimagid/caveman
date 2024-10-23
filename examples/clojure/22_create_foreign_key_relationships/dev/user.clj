@@ -15,6 +15,19 @@
     (system/stop-system system)
     (alter-var-root #'system (constantly nil))))
 
+(defn restart-system!
+  []
+  (stop-system!)
+  (start-system!))
+
 (defn server
   []
   (::system/server system))
+
+(defn db
+  []
+  (::system/db system))
+
+(defn env
+  []
+  (::system/env system))

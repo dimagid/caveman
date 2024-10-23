@@ -142,7 +142,8 @@
 <span style="font-weight: bold;">(defn stop-system!
   []
   (when system
-    (system/stop-system system)))</span></pre
+    (system/stop-system system)
+    (alter-var-root #'system (constantly nil))))</span></pre
           >
         </code>
     </li>
@@ -150,6 +151,31 @@
         <h2>Put a <code>restart-system</code> function in <code>user</code></h2>
         <p>When you want a quick way to turn your system off and back on again, it's nice to have such a function
             available.</p>
+        <code><pre>(ns user
+  (:require [example.system :as system]))
+
+(def system nil)
+
+(defn start-system!
+  []
+  (if system
+    (println "Already Started")
+    (alter-var-root #'system (constantly (system/start-system)))))
+
+(defn stop-system!
+  []
+  (when system
+    (system/stop-system system)
+    (alter-var-root #'system (constantly nil))))
+
+<span style="font-weight: bold;">(defn restart-system!
+  []
+  (stop-system!)
+  (start-system!))</span>
+
+(defn server
+  []
+  (::system/server system))</pre></code>
     </li>
     <li>
         <h2>Put a <code>server</code> function in <code>user</code>.</h2>

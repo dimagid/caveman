@@ -173,6 +173,42 @@ PORT=9999</pre></code>
             has the nice benefit of its <code>toString</code> implementation not leaking sensitive info by default.</li>
         </ol>
     </li>
+    <li>
+        <h2>Add an <code>env</code> function to your <code>system</code> namespace</h2>
+        <code><pre>(ns user
+  (:require [example.system :as system]))
+
+(def system nil)
+
+(defn start-system!
+  []
+  (if system
+    (println "Already Started")
+    (alter-var-root #'system (constantly (system/start-system)))))
+
+(defn stop-system!
+  []
+  (when system
+    (system/stop-system system)
+    (alter-var-root #'system (constantly nil))))
+
+(defn restart-system!
+  []
+  (stop-system!)
+  (start-system!))
+
+(defn server
+  []
+  (::system/server system))
+
+(defn db
+  []
+  (::system/db system))
+
+<span style="font-weight: bold;">(defn env
+  []
+  (::system/env system))</span></pre></code>
+    </li>
 </ul>
 <section>
     <div>
