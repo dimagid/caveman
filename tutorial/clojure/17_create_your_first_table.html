@@ -1,0 +1,156 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Create your first table </h1>
+<p>To do interesting things with a database you need actual tables in that database.</p>
+<p>Unfortunately this means we also need to come up with something for this hypothetical app
+    to work with. I am choosing to go with caveman themed examples.</p>
+<ul>
+    <li>
+        <h2>Make a new migration using <code>migrate new</code>.</h2>
+        <p>For this and other commands to work you need to be in the <code>migrations</code>
+        directory.</p>
+        <code><pre>$ migrate new create_cave_table
+------------------------------------------------------------------------
+-- MyBatis Migrations - new
+------------------------------------------------------------------------
+Your migrations configuration did not find your custom template.  Using the default template.Creating: 20241022232155_create_cave_table.sql
+Done!
+
+------------------------------------------------------------------------
+-- MyBatis Migrations SUCCESS
+-- Total time: 1s
+-- Finished at: Tue Oct 22 19:21:55 EDT 2024
+-- Final Memory: 5M/504M
+------------------------------------------------------------------------
+</pre></code>
+    </li>
+    <li>
+        <h2>Create a schema for your tables</h2>
+        <p>Edit this first migration so that we are creating a schema in the up migration and dropping it in the down migration.</p>
+        <code><pre>CREATE SCHEMA prehistoric;
+
+-- //@UNDO
+DROP SCHEMA prehistoric;</pre></code>
+        <p>The reason to do this instead of putting tables in the default schema is simple - it will get cluttered.
+        For servers of any significant size it's a likely that you will eventually have hundreds of tables. It's nice
+        to at least be able to group those into broad categories.</p>
+    </li>
+    <li>
+        <h2>Create a <code>cave</code> table in the <code>prehistoric</code> table.</h2>
+        <p>Most tables I make in postgres I will give a <code>uuid</code> primary key,
+            a <code>created_at</code> column and an <code>updated_at</code> column.</p>
+        <p>After that it's whatever is unique about the data stored in the table. For our cave example,
+        lets say to start all caves have is a <code>description</code>.</p>
+        <code><pre>CREATE SCHEMA prehistoric;
+
+<span style="font-weight: bold;">CREATE TABLE prehistoric.cave(
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    description text
+);</span>
+
+-- //@UNDO
+<span style="font-weight: bold;">DROP TABLE prehistoric.cave;</span>
+
+DROP SCHEMA prehistoric;</pre></code>
+    </li>
+    <li>
+        <h2>Create a trigger to automatically set <code>updated_at</code></h2>
+        <p>Manually setting <code>updated_at</code> is error-prone. Ideally we can use a database
+        trigger to keep it up to date automatically.</p>
+        <p>To pull that off we need to first create a function within the schema that sets a row's <code>updated_at</code>
+        to the current time as well as a trigger to execute that function whenever a row changes.</p>
+        <code><pre>CREATE SCHEMA prehistoric;
+
+<span style="font-weight: bold;">CREATE FUNCTION prehistoric.set_current_timestamp_updated_at()
+RETURNS TRIGGER AS $$
+DECLARE
+  _new record;
+BEGIN
+  _new := NEW;
+  _new."updated_at" = NOW();
+  RETURN _new;
+END;
+$$ LANGUAGE plpgsql;</span>
+
+CREATE TABLE prehistoric.cave(
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    description text
+);
+
+<span style="font-weight: bold;">CREATE TRIGGER set_prehistoric_cave_updated_at
+BEFORE UPDATE ON prehistoric.cave
+FOR EACH ROW
+EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();</span>
+
+-- //@UNDO
+DROP TABLE prehistoric.cave;
+
+<span style="font-weight: bold;">DROP FUNCTION prehistoric.set_current_timestamp_updated_at;</span>
+
+DROP SCHEMA prehistoric;</pre></code>
+        <p>We only need to create the function once per schema. We can then re-use it for any future tables with a similar shape (which will be most of them.)
+        If you are creating the trigger to set <code>updated_at</code> in the same migration as creating the table (which you should) then
+        you don't need anything special in the down migration to remove it. Just dropping the table will be enough.</p>
+    </li>
+    <li>
+        <h2>Run the migration with <code>migrate up</code></h2>
+        <p>This should create the table in the database.</p>
+        <code><pre>$ migrate up
+------------------------------------------------------------------------
+-- MyBatis Migrations - up
+------------------------------------------------------------------------
+========== Applying: 20241022232155_create_cave_table.sql ======================
+CREATE SCHEMA prehistoric;
+
+CREATE TABLE prehistoric.cave(
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    description text
+);
+
+CREATE FUNCTION prehistoric.set_current_timestamp_updated_at()
+RETURNS TRIGGER AS $$
+DECLARE
+  _new record;
+BEGIN
+  _new := NEW;
+  _new."updated_at" = NOW();
+  RETURN _new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_prehistoric_cave_updated_at
+BEFORE UPDATE ON prehistoric.cave
+FOR EACH ROW
+EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
+
+
+
+
+------------------------------------------------------------------------
+-- MyBatis Migrations SUCCESS
+-- Total time: 0s
+-- Finished at: Tue Oct 22 19:42:43 EDT 2024
+-- Final Memory: 14M/504M
+------------------------------------------------------------------------
+</pre></code>
+    </li>
+    <li>
+        <h2>Undo the migration with <code>migrate down</code></h2>
+        <p>This is just to verify you wrote the down migration sensibly. You can <code>migrate up</code> after verifying this works.</p>
+    </li>
+</ul>
+</body>
+</html>

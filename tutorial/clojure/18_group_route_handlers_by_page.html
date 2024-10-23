@@ -1,0 +1,153 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Group Route Handlers by Page </h1>
+<p>Now that we can talk to a database we are on the cusp of adding actual interesting behavior to this
+server.</p>
+<p>First though, we should take a minute to structure the rest of the code for growth.</p>
+<ul>
+    <li>
+        <h2>Put route handlers into namespaces based on the page they will serve.</h2>
+        <p>Right now we only have the "index" page (<code>/</code>) and the <code>/goodbye</code> route, so it might not
+        be clear why we would bother reorganizing anything.</p>
+        <p>It happens that when you make a server that serves HTML you tend to have multiple routes serving any given page.
+        What we want is for no route - or as few routes as possible - to be used for serving multiple pages. If
+        we don't take this step early it can become a hairball.</p>
+
+        <p>So in <code>src/example/hello/routes.clj</code> you should have:</p>
+
+        <code><pre>(ns example.hello.routes
+  (:require [example.system :as-alias system]
+            [hiccup2.core :as hiccup]
+            [next.jdbc :as jdbc]))
+
+(defn hello-handler
+  [{::system/keys [db]} _request]
+  (let [{:keys [planet]} (jdbc/execute-one!
+                          db
+                          ["SELECT 'earth' as planet"])]
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (str
+            (hiccup/html
+             [:html
+              [:body
+               [:h1 (str "Hello, " planet)]]]))}))</pre></code>
+
+        <p>In <code>src/example/goodbye/routes.clj</code> you would have:</p>
+        <code><pre>(ns example.goodbye.routes
+  (:require [hiccup2.core :as hiccup]))
+
+(defn goodbye-handler
+  [_system _request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str
+          (hiccup/html
+           [:html
+            [:body
+             [:h1 "Goodbye, world"]]]))})</pre></code>
+
+        <p>And finally back in <code>src/example/routes.clj</code> you should reference those two new namespaces.</p>
+
+        <code><pre>(ns example.routes
+  (:require [clojure.tools.logging :as log]
+            <span style="font-weight: bold;">[example.goodbye.routes :as goodbye-routes]</span>
+            <span style="font-weight: bold;">[example.hello.routes :as hello-routes]</span>
+            [hiccup2.core :as hiccup]
+            [reitit.ring :as reitit-ring]))
+
+(defn routes
+  [system]
+  [["/"        {:get {:handler (partial <span style="font-weight: bold;">#'hello-routes/hello-handler</span> system)}}]
+   ["/goodbye" {:get {:handler (partial <span style="font-weight: bold;">#'goodbye-routes/goodbye-handler</span> system)}}]])
+
+(defn not-found-handler
+  [_request]
+  {:status 404
+   :headers {"Content-Type" "text/html"}
+   :body (str
+          (hiccup/html
+           [:html
+            [:body
+             [:h1 "Not Found"]]]))})
+
+(defn root-handler
+  [system request]
+  (log/info (str (:request-method request) " - " (:uri request)))
+  (let [handler (reitit-ring/ring-handler
+                 (reitit-ring/router
+                  (routes system))
+                 #'not-found-handler)]
+    (handler request)))
+</pre></code>
+    </li>
+    <li>
+        <h2>Instead of exposing handler functions directly, expose a function which returns <code>reitit</code> routes</h2>
+        <p>By doing this we can hook up multiple handlers at once and also have a place to later put page specific middleware.</p>
+        <p><b><code>src/example/hello/routes.clj</code>:</b></p>
+        <code><pre>(ns example.hello.routes
+  (:require [example.system :as-alias system]
+            [hiccup2.core :as hiccup]
+            [next.jdbc :as jdbc]))
+
+(defn hello-handler
+  [{::system/keys [db]} _request]
+  (let [{:keys [planet]} (jdbc/execute-one!
+                          db
+                          ["SELECT 'earth' as planet"])]
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (str
+            (hiccup/html
+             [:html
+              [:body
+               [:h1 (str "Hello, " planet)]]]))}))
+
+<span style="font-weight: bold;">(defn routes
+  [system]
+  [["/" {:get {:handler (partial #'hello-handler system)}}]])</span></pre></code>
+
+        <p><b><code>src/example/goodbye/routes.clj</code>:</b></p>
+        <code><pre>(ns example.goodbye.routes
+  (:require [hiccup2.core :as hiccup]))
+
+(defn goodbye-handler
+  [_system _request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str
+          (hiccup/html
+           [:html
+            [:body
+             [:h1 "Goodbye, world"]]]))})
+
+<span style="font-weight: bold;">(defn routes
+  [system]
+  [["/goodbye" {:get {:handler (partial #'goodbye-handler system)}}]])</span></pre></code>
+
+        <p><b>src/example/routes.clj</b></p>
+        <code><pre>(ns example.routes
+  (:require [clojure.tools.logging :as log]
+            [example.goodbye.routes :as goodbye-routes]
+            [example.hello.routes :as hello-routes]
+            [hiccup2.core :as hiccup]
+            [reitit.ring :as reitit-ring]))
+
+(defn routes
+  [system]
+  <span style="font-weight: bold;">[""
+   (hello-routes/routes system)
+   (goodbye-routes/routes system)]</span>)
+
+...</pre></code>
+    </li>
+</ul>
+</body>
+</html>
