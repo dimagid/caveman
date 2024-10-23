@@ -63,10 +63,11 @@ an audience that loves their Datomics and XTDBs, but the rest of this is focused
         <p>The rest of will try to not be <code>git</code> specific, but this one in particular is worth calling out. Accidentally
         commiting a <code>.env</code> file is one of those things that's easy to do by mistake if you are not careful. And its
         important not to, because you can leak API keys and similar that way.</p>
-        <p>Also, while we're at it, add <code>.cpcache</code> and <code>data</code> to your <code>.gitignore</code>. <code>.cpcache</code> folder
-        comes from the clojure CLI tools and isn't usefully sharable between machines. <code>data</code> is where all the data from the local postgres instance will go.</p>
+        <p>Also, while we're at it, add <code>.cpcache</code>, <code>.clj-kondo/.cache</code>, and <code>data</code> to your <code>.gitignore</code>. <code>.cpcache</code> folder
+        comes from the clojure CLI tools and isn't usefully sharable between machines. <code>.clj-kondo/.cache</code> is similar temporary files from the linter. <code>data</code> is where all the data from the local postgres instance will go.</p>
         <code><pre>.env
 .cpcache
+.clj-kondo/.cache
 data</pre></code>
     </li>
     <li>
