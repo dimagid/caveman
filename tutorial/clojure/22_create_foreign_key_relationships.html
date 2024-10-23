@@ -1,0 +1,111 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Create Foreign Key Relationships </h1>
+<p>Relational databases are at their most useful when data in one table relates to other data
+    in other tables.</p>
+<p>The mechanism we use to enforce that something in <code>cave_id</code> column actually refers back to
+a row in a <code>cave</code> table is foreign keys.</p>
+<ul>
+    <li>
+        <h2>Create a <code>hominid</code> table.</h2>
+        <p>This should have the standard <code>id</code>, <code>created_at</code>, <code>updated_at</code>,
+        and the trigger to keep <code>updated_at</code> updated.</p>
+        <p>In addition, we'll say that a <code>hominid</code> has a single <code>cave_id</code> where
+        they reside and a <code>name</code>.</p>
+        <code><pre>-- // create_hominid_table
+CREATE TABLE prehistoric.hominid (
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    "name" text,
+    cave_id uuid
+);
+
+CREATE TRIGGER set_prehistoric_hominid_updated_at
+BEFORE UPDATE ON prehistoric.hominid
+FOR EACH ROW
+EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
+
+
+-- //@UNDO
+DROP TABLE prehistoric.hominid;</pre></code>
+    </li>
+
+    <li>
+        <h2>Have <code>cave_id</code> be a foreign key</h2>
+        <p>You want to write out the <code>on update restrict on delete restrict</code>.
+        It's not the default behavior but it's the least potentially problem causing.</p>
+        <code><pre>-- // create_hominid_table
+CREATE TABLE prehistoric.hominid (
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    "name" text,
+    cave_id uuid <span style="font-weight: bold;">REFERENCES prehistoric.cave (id)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT</span>
+);
+
+CREATE TRIGGER set_prehistoric_hominid_updated_at
+BEFORE UPDATE ON prehistoric.hominid
+FOR EACH ROW
+EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
+
+-- //@UNDO
+DROP TABLE prehistoric.hominid;</pre></code>
+    </li>
+    <li>
+        <h2>Make indexes on your foreign keys</h2>
+        <p>I don't have hard data on this, but every time I make a foreign key relationship and don't make indexes
+        that cover the related columns I come to regret it.</p>
+        <code><pre>-- // create_hominid_table
+CREATE TABLE prehistoric.hominid (
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    "name" text,
+    cave_id uuid REFERENCES prehistoric.cave (id)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
+);
+
+CREATE TRIGGER set_prehistoric_hominid_updated_at
+BEFORE UPDATE ON prehistoric.hominid
+FOR EACH ROW
+EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
+
+<span style="font-weight: bold;">CREATE INDEX prehistoric_hominid_cave_id_idx
+ON prehistoric.hominid
+USING btree (cave_id);</span>
+
+
+-- //@UNDO
+DROP TABLE prehistoric.hominid;</pre></code>
+    </li>
+</ul>
+</body>
+</html>
