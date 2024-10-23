@@ -1,0 +1,92 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Create "Standardized" Middleware Stacks </h1>
+<p>Middleware is code that wraps a handler function. This is usually done to either respond to the request
+before reading the wrapped handler or to parse information out of a request and make it available to that same
+handler.</p>
+<p>This is all well and good, but if you start to have routes have their own bespoke stacks of middleware
+it can be a nightmare to debug and change later. Its especially onerous if you have to reason about "trees"
+of these middlewares</p>
+<p> Therefore, I think it makes sense to take two pre-emptive steps
+
+<ol>
+    <li>Sequester "standard" middlewares into a dedicated namespace.</li>
+    <li>Have each <code>routes</code> namespace pick their own middleware from those standard sets.</li>
+</ol></p>
+<ul>
+    <li>
+        <h2>Add <code>ring-defaults</code> to your <code>deps.edn</code>.</h2>
+        <p>There is a pretty high chance that you might need to make your own "defaults" instead of
+        purely relying on what this gives you. Its a decent starting point though.</p>
+        <code><pre>{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ring/ring {:mvn/version "1.13.0"}
+        metosin/reitit-ring {:mvn/version "0.5.5"}
+        org.clojure/tools.logging {:mvn/version "1.3.0"}
+        org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        hiccup/hiccup {:mvn/version "2.0.0-RC3"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.3.955"}
+        org.postgresql/postgresql {:mvn/version "42.7.4"}
+        com.zaxxer/HikariCP {:mvn/version "5.1.0"}
+        io.github.cdimascio/dotenv-java {:mvn/version "3.0.0"}
+        <span style="font-weight: bold;">ring/ring-defaults {:mvn/version "0.5.0"}</span>}
+ :aliases {:dev {:extra-paths ["dev" "test"]
+                 :extra-deps {nrepl/nrepl {:mvn/version "1.2.0"}
+                              lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
+           :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+    </li>
+    <li>
+        <h2>Put the following into <code>src/example/middleware.clj</code></h2>
+        <p>This takes in the <code>system</code> as a matter of convention - some middlewares you write in the future
+            could want to access stateful things. Good example is authentication middlewares. Those might reasonably want
+        to make database queries.</p>
+        <code><pre>(ns example.middleware
+  (:require
+    [ring.middleware.defaults :as middleware-defaults]))
+
+(defn standard-html-route-middleware
+  [_system]
+  [#(middleware-defaults/wrap-defaults % middleware-defaults/site-defaults)])
+</pre></code>
+    </li>
+    <li>
+        <h2>Edit src/example/cave/routes.clj to use the standard middleware</h2>
+        <p>After this we should be ready to actually process the data passed into the form.</p>
+        <code><pre>(ns example.cave.routes
+  (:require [hiccup2.core :as hiccup]
+            <span style="font-weight: bold;">[example.middleware :as middleware]</span>))
+
+...
+
+(defn routes
+  [system]
+  <span style="font-weight: bold;">[""
+   {:middleware (middleware/standard-html-route-middleware system)}
+   [["/cave" {:get {:handler (partial #'cave-handler system)}}]
+    ["/cave/create" {:post {:handler (partial #'cave-create-handler system)}}]]]</span>)</pre></code>
+    </li>
+</ul>
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/21_process_form_submits.html"
+            >&rarr; Process Form Submits.</a
+            >
+        </h1>
+        <h1>
+            <a href="/tutorial/clojure/19_display_forms.html"
+            >&larr; Display Forms.</a
+            >
+        </h1>
+    </div>
+</section>
+</body>
+</html>

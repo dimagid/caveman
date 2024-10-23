@@ -1,0 +1,120 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Process Form Submits </h1>
+
+<ul>
+    <li>
+        <h2>Add an anti-forgery field to the form.</h2>
+        <p>This is needed for a form submission to work now with the <code>site-defaults</code>
+        middleware set.</p>
+        <p>The basic concept behind an anti-forgery field is to make sure that if someone
+            gives you a form submit request, they were not tricked into doing that by a different site.
+        There is more to it, but its not too relevant at the moment.</p>
+        <code><pre>(ns example.cave.routes
+  (:require [hiccup2.core :as hiccup]
+            [example.middleware :as middleware]
+            <span style="font-weight: bold;">[ring.util.anti-forgery :as anti-forgery]</span>))
+
+(defn cave-create-handler
+  [_system request]
+  (println request)
+  (println (:params request))
+  (let [{:keys [description]} (:params request)]
+    {:status  200
+     :headers {"Content-Type" "text/html"}
+     :body    (str
+               (hiccup/html
+                [:html
+                 [:body
+                  [:h1 "TODO"]]]))}))
+
+(defn cave-handler
+  [_system _request]
+  {:status  200
+   :headers {"Content-Type" "text/html"}
+   :body    (str
+             (hiccup/html
+              [:html
+               [:body
+                [:h1 "Create a new cave"]
+                [:form {:method "post"
+                        :action "/cave/create"}
+                 <span style="font-weight: bold;">(hiccup/raw (anti-forgery/anti-forgery-field))</span>
+                 [:label {:for "description"} "Description"]
+                 [:input {:name "description" :type "text"}]
+                 [:input {:type "submit"}]]]]))})
+</pre></code>
+    </li>
+
+    <li>
+        <h2>Insert a new row based on the given description.</h2>
+        <p>To do this you need to pull the <code>db</code> out of the <code>system</code>
+        and then use <code>next.jdbc</code> to make the insert</p>
+        <p>Also, instead of returning HTML directly, redirect back to <code>/cave</code>.</p>
+        <code><pre>(ns example.cave.routes
+  (:require [example.middleware :as middleware]
+            <span style="font-weight: bold;">[example.system :as-alias system]</span>
+            [hiccup2.core :as hiccup]
+            <span style="font-weight: bold;">[next.jdbc :as jdbc]
+            [ring.util.anti-forgery :as anti-forgery]
+            [ring.util.response :as response]</span>))
+
+(defn cave-create-handler
+  [{::system/keys [db]} request]
+  <span style="font-weight: bold;">(let [{:keys [description]} (:params request)]
+    (jdbc/execute!
+      db
+      ["INSERT INTO prehistoric.cave(description) VALUES (?)"
+       description])
+    (response/redirect "/cave"))</span>))
+
+...</pre></code>
+    </li>
+    <li>
+        <h2>Display existing rows.</h2>
+        <p>Now if we make a query we can show all the existing cave rows. This way you will see the names of any existing caves,
+        submit a new one, and immediately see it in the list when you hit submit.</p>
+        <code><pre>(defn cave-handler
+  [<span style="font-weight: bold;">{::system/keys [db]}</span> _request]
+  (let [caves (jdbc/execute!
+                db
+                ["SELECT id, description FROM prehistoric.cave"])]
+    {:status  200
+     :headers {"Content-Type" "text/html"}
+     :body    (str
+               (hiccup/html
+                [:html
+                 [:body
+                  <span style="font-weight: bold;">[:h1 "Existing caves"]
+                  [:ul
+                   (for [cave caves]
+                     [:li (:cave/id cave) " - " (:cave/description cave)])]</span>
+                  [:h1 "Create a new cave"]
+                  [:form {:method "post"
+                          :action "/cave/create"}
+                   (hiccup/raw (anti-forgery/anti-forgery-field))
+                   [:label {:for "description"} "Description"]
+                   [:input {:name "description" :type "text"}]
+                   [:input {:type "submit"}]]]]))}))</pre></code>
+        <p>If all goes well, you should end up with something like the following screenshot.</p>
+        <img src="21/screenshot.png" alt="Screenshot of expected output" >
+    </li>
+</ul>
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/20_create_standardized_middleware_stacks.html"
+            >&larr; Create "Standardized" Middleware Stacks.</a
+            >
+        </h1>
+    </div>
+</section>
+</body>
+</html>

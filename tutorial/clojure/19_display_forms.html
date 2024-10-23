@@ -1,0 +1,91 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
+<h1>Display Forms </h1>
+<p>Without producing any JavaScript, the way someone using a web browser can send data back to a server
+    is with a form submit.</p>
+
+<ul>
+    <li>
+        <h2>Put the following into <code>src/example/cave/routes.clj</code>.</h2>
+        <code><pre>(ns example.cave.routes
+  (:require [hiccup2.core :as hiccup]))
+
+(defn cave-create-handler
+  [_system _request]
+  {:status  200
+   :headers {"Content-Type" "text/html"}
+   :body    (str
+              (hiccup/html
+                [:html
+                 [:body
+                  [:h1 "TODO"]]]))})
+
+(defn cave-handler
+  [_system _request]
+  {:status  200
+   :headers {"Content-Type" "text/html"}
+   :body    (str
+              (hiccup/html
+                 [:html
+                  [:body
+                   [:h1 "Create a new cave"]
+                   [:form {:method "post"
+                           :action "/cave/create"}
+                    [:label {:for "description"} "Description"]
+                    [:input {:name "description" :type "text"}]
+                    [:input {:type "submit"}]]]]))})
+
+(defn routes
+  [system]
+  [["/cave" {:get {:handler (partial #'cave-handler system)}}]
+   ["/cave/create" {:post {:handler (partial #'cave-create-handler system)}}]])</pre></code>
+    </li>
+    <li>
+        <h2>Register the cave routes in <code>src/example/routes.clj</code></h2>
+        <code><pre>(ns example.routes
+  (:require [clojure.tools.logging :as log]
+            <span style="font-weight: bold;">[example.cave.routes :as cave-routes]</span>
+            [example.goodbye.routes :as goodbye-routes]
+            [example.hello.routes :as hello-routes]
+            [hiccup2.core :as hiccup]
+            [reitit.ring :as reitit-ring]))
+
+(defn routes
+  [system]
+  [""
+   <span style="font-weight: bold;">(cave-routes/routes system)</span>
+   (hello-routes/routes system)
+   (goodbye-routes/routes system)])
+
+...</pre></code>
+    </li>
+
+    <li>
+        <h2>Go to <code>/cave</code> and test out the form.</h2>
+        <p>You should land on <code>/cave/create</code> with <code>TODO</code> on the screen. We'll loop back to this
+        after making some middleware.</p>
+    </li>
+</ul>
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/20_create_standardized_middleware_stacks.html"
+            >&rarr; Create "Standardized" Middleware Stacks.</a
+            >
+        </h1>
+        <h1>
+            <a href="/tutorial/clojure/18_group_route_handlers_by_page.html"
+            >&larr; Group Route Handlers by Page.</a
+            >
+        </h1>
+    </div>
+</section>
+</body>
+</html>
