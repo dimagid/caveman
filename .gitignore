@@ -1,4 +1,4 @@
 **/.cpcache
 **/.idea
 .idea
-.clj-kondo/.cache
+**/.clj-kondo/.cache
