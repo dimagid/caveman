@@ -95,8 +95,8 @@
 
 (defn stop-system
   [system]
-  (stop-db (::db system))
-  <span style="font-weight: bold;">(stop-server (::server system))</span>)</pre></code>
+  <span style="font-weight: bold;">(stop-db (::db system))</span>
+  (stop-server (::server system)))</pre></code>
     </li>
     <li>
         <h2>Query the database in one of your handlers</h2>
