@@ -37,5 +37,5 @@
 
 (defn stop-system
   [system]
-  (stop-db (::db system))
-  (stop-server (::server system)))
+  (stop-server (::server system))
+  (stop-db (::db system)))

@@ -198,8 +198,9 @@ DROP SCHEMA proletarian;
 
 (defn stop-system
   [system]
-  (stop-db (::db system))
-  (stop-server (::server system)))</pre></code>
+  (stop-server (::server system))
+  <span style="font-weight: bold;">(stop-worker (::worker system))</span>
+  (stop-db (::db system)))</pre></code>
     </li>
 
     <li>
