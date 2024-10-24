@@ -24,73 +24,62 @@
 <section>
     <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
 </section>
-<h1>Dynamically Generate SQL </h1>
-<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/24_dynamically_generate_sql">(code for this section)</a></span>
+<h1>Document Your Dependencies </h1>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/25_document_your_dependencies">(code for this section)</a></span>
 </sub>
-<p>While there is nothing wrong with putting SQL in strings, many reasonable features will require you to dynamically
-    produce those strings based on user input.</p>
-
+<p>As your project grows and you add more and more dependencies, it can become hard to remember why you have any given dependency.
+This can lead to you having multiple ways of doing the same task or keeping a library around that you don't actually need anymore.</p>
+<p>One way to combat this is with comments.</p>
 <ul>
     <li>
-        <h2>Add <code>honeysql</code> to your <code>deps.edn</code>.</h2>
+        <h2>Add comments above your dependencies in <code>deps.edn</code>.</h2>
+        <p>Exactly what comments to put is more art than science, but aiming to keep it
+        short and sweet is a decent strategy.</p>
+        <p>Some things don't deserve a special note, of course. You won't need to later figure out
+            why <code>org.clojure/clojure</code> is there.</p>
+        <p>Some things definitely do. For better or worse, we got some silly names out there.</p>
         <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        <span style="font-weight: bold;">;; HTTP server</span>
         ring/ring {:mvn/version "1.13.0"}
+        <span style="font-weight: bold;">;; Routing</span>
         metosin/reitit-ring {:mvn/version "0.5.5"}
+        <span style="font-weight: bold;">;; Logging Facade</span>
         org.clojure/tools.logging {:mvn/version "1.3.0"}
+        <span style="font-weight: bold;">;; Logging Implementation</span>
         org.slf4j/slf4j-simple {:mvn/version "2.0.16"}
+        <span style="font-weight: bold;">;; HTML Generation</span>
         hiccup/hiccup {:mvn/version "2.0.0-RC3"}
+        <span style="font-weight: bold;">;; Database Queries</span>
         com.github.seancorfield/next.jdbc {:mvn/version "1.3.955"}
+        <span style="font-weight: bold;">;; Postgres Driver</span>
         org.postgresql/postgresql {:mvn/version "42.7.4"}
+        <span style="font-weight: bold;">;; Database Connection Pooling</span>
         com.zaxxer/HikariCP {:mvn/version "5.1.0"}
+        <span style="font-weight: bold;">;; Unify Environment Variables + .env Handing</span>
         io.github.cdimascio/dotenv-java {:mvn/version "3.0.0"}
+        <span style="font-weight: bold;">;; HTTP Middleware</span>
         ring/ring-defaults {:mvn/version "0.5.0"}
+        <span style="font-weight: bold;">;; Background Jobs</span>
         msolli/proletarian {:mvn/version "1.0.86-alpha"}
+        <span style="font-weight: bold;">;; JSON Reading and Writing</span>
         cheshire/cheshire {:mvn/version "5.13.0"}
-        <span style="font-weight: bold;">com.github.seancorfield/honeysql {:mvn/version "2.6.1203"}</span>}
+        <span style="font-weight: bold;">;; Dynamic SQL Generation</span>
+        com.github.seancorfield/honeysql {:mvn/version "2.6.1203"}}
  :aliases {:dev {:extra-paths ["dev" "test"]
                  :extra-deps {nrepl/nrepl {:mvn/version "1.2.0"}
+                              <span style="font-weight: bold;">;; Test Runner</span>
                               lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
            :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
     </li>
 
-    <li>
-        <h2>Using <code>honey.sql/format</code>, replace the query for inserting <code>hominid</code>s</h2>
-        <p>Nothing special about this one, but this example project doesn't have a killer use for dynamic SQL yet.
-        It should suffice to show how it's done. Refer to <a href="https://github.com/seancorfield/honeysql">honeysql's documentation</a> for more info.</p>
-        <code><pre>(ns example.cave.jobs
-  (:require [example.system :as-alias system]
-            <span style="font-weight: bold;">[honey.sql :as sql]</span>
-            [next.jdbc :as jdbc])
-  (:import (java.util UUID)))
-
-(set! *warn-on-reflection* true)
-
-(defn process-cave-insert
-  [{::system/keys [db]} _job-type payload]
-  (jdbc/execute!
-   db
-   <span style="font-weight: bold;">(sql/format
-    {:insert-into :prehistoric/hominid
-     :values [{:name    "Grunk"
-               :cave_id (UUID/fromString (:id payload))}]}))</span>)
-
-(defn handlers
-  []
-  {:prehistoric.cave/insert #'process-cave-insert})</pre></code>
-    </li>
 </ul>
 <section>
     <div>
         <h1>
-            <a href="/tutorial/clojure/25_document_your_dependencies.html"
-            >&rarr; Document Your Dependencies</a
-            >
-        </h1>
-        <h1>
-            <a href="/tutorial/clojure/23_run_jobs_in_the_background.html"
-            >&larr; Run Jobs in the Background</a
+            <a href="/tutorial/clojure/24_dynamically_generate_sql.html"
+            >&larr; Dynamically Generate SQL</a
             >
         </h1>
     </div>
