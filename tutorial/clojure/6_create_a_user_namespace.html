@@ -50,6 +50,12 @@
             You want to have the <code>dev</code> folder included as an extra
             path.
         </p>
+        <p>
+            Because <code>user.clj</code> is treated specially, you can run into
+            <a href="https://github.com/Oddsor/userclj-footgun?tab=readme-ov-file">wacky behavior during distribution</a>
+            if you include it in your normal build. So the alias serves to make sure <code>dev/user.clj</code>
+            is only on the path during development.
+        </p>
 
         <code>
           <pre>
