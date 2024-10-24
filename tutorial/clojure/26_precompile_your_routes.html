@@ -1,0 +1,148 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
+</section>
+<h1>Precompile your Routes </h1>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/26_precompile_your_routes">(code for this section)</a></span>
+</sub>
+<p>When developing code we want new or altered routes to be reflected as soon as the code for them is loaded in the REPL.
+When code is deployed it's subpar to compile a reitit router on every request.</p>
+
+<ul>
+    <li>
+        <h2>Add an <code>ENVIRONMENT</code> variable to your <code>.env</code> file.</h2>
+        <p>For development, we will set <code>ENVIRONMENT</code> to <code>development</code>.
+            For production, <code>production</code>, etc.</p>
+        <code><pre><span style="font-weight: bold;">ENVIRONMENT=development</span>
+POSTGRES_USERNAME=postgres
+POSTGRES_PASSWORD=postgres
+PORT=9999</pre></code>
+    </li>
+
+    <li>
+        <h2>Add a curried overload to <code>root-handler</code></h2>
+        <p>Currying is when you take a function that takes more than one argument and turning it into a series of
+        functions that return functions which each take a single argument.</p>
+        <p>The reason we do this is so that we can either provide both the <code>system</code>
+        and <code>request</code> at the same time - in which case the routes will be compiled per-request - or
+        call it with <code>system</code> and later call the result on a <code>request</code>. In that situation
+        the compilation will have already happened.</p>
+        <code><pre>(ns example.routes
+  (:require [clojure.tools.logging :as log]
+            [example.cave.routes :as cave-routes]
+            [example.goodbye.routes :as goodbye-routes]
+            [example.hello.routes :as hello-routes]
+            [hiccup2.core :as hiccup]
+            [reitit.ring :as reitit-ring]))
+
+...
+
+(defn root-handler
+  <span style="font-weight: bold;">([system request]
+   ((root-handler system) request))
+  ([system]
+   (let [handler (reitit-ring/ring-handler
+                   (reitit-ring/router
+                     (routes system))
+                   #'not-found-handler)]
+     (fn [request]
+       (log/info (str (:request-method request) " - " (:uri request)))
+       (handler request))))</span>)</pre></code>
+    </li>
+
+    <li>
+        <h2>Change <code>start-server</code> to use the two argument overload in development
+            and the curried version when not in development.</h2>
+        <p>You can validate that this works properly by changing the <code>ENVIRONMENT</code> variable
+        and hot loading in a change to your routes. When its set to <code>development</code> that should work,
+        when it's not you need to restart your system to see changes.</p>
+        <code><pre>(ns example.system
+  (:require [example.jobs :as jobs]
+            [example.routes :as routes]
+            [next.jdbc.connection :as connection]
+            [proletarian.worker :as worker]
+            [ring.adapter.jetty :as jetty])
+  (:import (com.zaxxer.hikari HikariDataSource)
+           (io.github.cdimascio.dotenv Dotenv)
+           (org.eclipse.jetty.server Server)))
+
+(set! *warn-on-reflection* true)
+
+...
+
+(defn start-server
+  [{::keys [env] :as system}]
+  <span style="font-weight: bold;">(let [handler (if (= (Dotenv/.get env "ENVIRONMENT") "development")
+                  (partial #'routes/root-handler system)
+                  (routes/root-handler system))]
+    (jetty/run-jetty
+      handler
+      {:port  (parse-long (Dotenv/.get env "PORT"))
+       :join? false}))</span>)
+
+...</pre></code>
+    </li>
+
+    <li>
+        <h2>Name the anonymous function inside of <code>root-handler</code></h2>
+        <p>When something goes wrong, a named function is easier to pick out in a stack trace than
+        one without a name. We are going to reuse the name of <code>root-handler</code>
+        because that will point you at the right place in the code, even if it looks a little redundant.</p>
+        <code><pre>(ns example.routes
+  (:require [clojure.tools.logging :as log]
+            [example.cave.routes :as cave-routes]
+            [example.goodbye.routes :as goodbye-routes]
+            [example.hello.routes :as hello-routes]
+            [example.system :as-alias system]
+            [hiccup2.core :as hiccup]
+            [reitit.ring :as reitit-ring]))
+
+...
+
+(defn root-handler
+  ([system request]
+   ((root-handler system) request))
+  ([system]
+   (let [handler (reitit-ring/ring-handler
+                   (reitit-ring/router
+                     (routes system))
+                   #'not-found-handler)]
+     (fn <span style="font-weight: bold;">root-handler</span> [request]
+       (log/info (str (:request-method request) " - " (:uri request)))
+       (handler request)))))
+</pre></code>
+    </li>
+</ul>
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/25_document_your_dependencies.html"
+            >&larr; Document your Dependencies</a
+            >
+        </h1>
+    </div>
+</section>
+</body>
+</html>
