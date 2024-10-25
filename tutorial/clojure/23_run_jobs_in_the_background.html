@@ -276,10 +276,10 @@ BEGIN
         job_type, payload
     )
     VALUES (
-        ':prehistoric.cave/insert', row_to_json(new)
+        ':prehistoric.cave/insert', row_to_json(NEW)
     );
-    return new;
-end;
+    return NEW;
+END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER prehistoric_cave_insert_trigger

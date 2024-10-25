@@ -43,7 +43,7 @@ PORT=9999</pre></code>
 
     <li>
         <h2>Add a curried overload to <code>root-handler</code></h2>
-        <p>Currying is when you take a function that takes more than one argument and turning it into a series of
+        <p>Currying is when you take a function that takes more than one argument and turn it into a series of
         functions that return functions which each take a single argument.</p>
         <p>The reason we do this is so that we can either provide both the <code>system</code>
         and <code>request</code> at the same time - in which case the routes will be compiled per-request - or
@@ -74,7 +74,7 @@ PORT=9999</pre></code>
 
     <li>
         <h2>Change <code>start-server</code> to use the two argument overload in development
-            and the curried version when not in development.</h2>
+            and the curried overload when not in development.</h2>
         <p>You can validate that this works properly by changing the <code>ENVIRONMENT</code> variable
         and hot loading in a change to your routes. When its set to <code>development</code> that should work,
         when it's not you need to restart your system to see changes.</p>
