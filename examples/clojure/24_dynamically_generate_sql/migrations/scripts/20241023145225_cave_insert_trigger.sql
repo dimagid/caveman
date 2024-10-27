@@ -18,7 +18,7 @@ FOR EACH ROW
 EXECUTE PROCEDURE prehistoric_cave_insert_function();
 
 -- //@UNDO
-DROP TRIGGER prehistoric_cave_insert_trigger;
+DROP TRIGGER prehistoric_cave_insert_trigger ON prehistoric.cave;
 DROP FUNCTION prehistoric_cave_insert_function;
 
 
