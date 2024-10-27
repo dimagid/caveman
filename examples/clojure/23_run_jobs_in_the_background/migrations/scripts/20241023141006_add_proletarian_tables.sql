@@ -23,8 +23,6 @@ CREATE TABLE IF NOT EXISTS proletarian.archived_job (
     finished_at TIMESTAMP NOT NULL  -- When the job was finished (success or failure)
 );
 
-DROP INDEX IF EXISTS proletarian.job_queue_process_at;
-
 CREATE INDEX job_queue_process_at ON proletarian.job (queue, process_at);
 
 -- //@UNDO
