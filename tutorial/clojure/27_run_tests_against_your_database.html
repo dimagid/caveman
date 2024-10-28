@@ -273,7 +273,8 @@ the code that queries and inserts data into your database. This is not quite as 
         but we can achieve that in a different way.</p>
         <p>Instead of calling <code>start-pg-test-container</code> in <code>get-test-db</code>, we will call that
             function in a <code>delay</code>. A <code>delay</code> will only run the code inside of it once its
-        dereferenced and cache the result for any subsequent calls.</p>
+        dereferenced and cache the result for any subsequent calls. To be extra sure it will only run once, we'll pair it
+        with <code>defonce</code>.</p>
         <p>
             As part of this we will tell the JVM to close the container when it exits. If we didn't do this we would
             end up with dangling docker containers. A shutdown hook isn't perfect - there are ways you can close the JVM
@@ -502,6 +503,9 @@ the code that queries and inserts data into your database. This is not quite as 
       (finally
         (jdbc/execute! db
                        [(format "DROP DATABASE %s;" test-table-name)])))))</pre></code>
+    </li>
+    <li>
+        <h2>Run your tests with <code>just test</code></h2>
     </li>
 </ul>
 
