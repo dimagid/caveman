@@ -20,7 +20,7 @@
     (.waitingFor container (Wait/forListeningPort))
     container))
 
-(def ^:private pg-test-container-delay
+(defonce ^:private pg-test-container-delay
   (delay
     (let [container (start-pg-test-container)]
       (.addShutdownHook (Runtime/getRuntime)
@@ -59,7 +59,7 @@
                   (.setSendFullScript true))
                 nil))))
 
-(def ^:private migrations-delay
+(defonce ^:private migrations-delay
   (delay (run-migrations (get-test-db))))
 
 (def ^:private test-counter (atom 0))

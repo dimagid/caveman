@@ -301,7 +301,7 @@ the code that queries and inserts data into your database. This is not quite as 
     (.waitingFor container (Wait/forListeningPort))
     container))
 
-<span style="font-weight: bold;">(def pg-test-container-delay
+<span style="font-weight: bold;">(defonce pg-test-container-delay
   (delay
     (let [container (start-pg-test-container)]
       (.addShutdownHook (Runtime/getRuntime)
@@ -352,7 +352,7 @@ the code that queries and inserts data into your database. This is not quite as 
   []
   ...)
 
-(def pg-test-container-delay
+(defonce pg-test-container-delay
   ...)
 
 (defn get-test-db
@@ -363,7 +363,7 @@ the code that queries and inserts data into your database. This is not quite as 
   [db]
   ...)
 
-<span style="font-weight: bold;">(def migrations-delay
+<span style="font-weight: bold;">(defonce migrations-delay
   (delay (run-migrations (get-test-db))))
 
 (def test-counter (atom 0))</span>
@@ -428,7 +428,7 @@ the code that queries and inserts data into your database. This is not quite as 
     (.waitingFor container (Wait/forListeningPort))
     container))
 
-(def <span style="font-weight: bold;">^:private</span> pg-test-container-delay
+(defonce <span style="font-weight: bold;">^:private</span> pg-test-container-delay
   (delay
     (let [container (start-pg-test-container)]
       (.addShutdownHook (Runtime/getRuntime)
@@ -467,7 +467,7 @@ the code that queries and inserts data into your database. This is not quite as 
                   (.setSendFullScript true))
                 nil))))
 
-(def <span style="font-weight: bold;">^:private</span> migrations-delay
+(defonce <span style="font-weight: bold;">^:private</span> migrations-delay
   (delay (run-migrations (get-test-db))))
 
 (def <span style="font-weight: bold;">^:private</span> test-counter (atom 0))
