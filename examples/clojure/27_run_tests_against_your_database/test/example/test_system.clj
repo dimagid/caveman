@@ -65,7 +65,7 @@
 (def ^:private test-counter (atom 0))
 
 (defn with-test-db
-  [cb]
+  [callback]
   @migrations-delay
   (let [test-table-name (str "test_" (swap! test-counter inc))
         container       @pg-test-container-delay
@@ -90,7 +90,7 @@
                                 (PostgreSQLContainer/.getUsername container)
                                 "&password="
                                 (PostgreSQLContainer/.getPassword container))})]
-        (cb db))
+        (callback db))
       (finally
         (jdbc/execute! db
                        [(format "DROP DATABASE %s;" test-table-name)])))))

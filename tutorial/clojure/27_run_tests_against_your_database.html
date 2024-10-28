@@ -473,7 +473,7 @@ the code that queries and inserts data into your database. This is not quite as 
 (def <span style="font-weight: bold;">^:private</span> test-counter (atom 0))
 
 (defn with-test-db
-  [cb]
+  [callback]
   @migrations-delay
   (let [test-table-name (str "test_" (swap! test-counter inc))
         container       @pg-test-container-delay
@@ -498,7 +498,7 @@ the code that queries and inserts data into your database. This is not quite as 
                                 (PostgreSQLContainer/.getUsername container)
                                 "&password="
                                 (PostgreSQLContainer/.getPassword container))})]
-        (cb db))
+        (callback db))
       (finally
         (jdbc/execute! db
                        [(format "DROP DATABASE %s;" test-table-name)])))))</pre></code>
