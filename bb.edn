@@ -6,17 +6,20 @@
 
   nrepl {:doc "Start a REPL with nREPL and CIDER support"
          :task (if (fs/windows?)
-                 (clojure "-M:nrepl")
-                 (shell "rlwrap bb clojure -M:nrepl"))}
+                 (clojure "-M:dev -m nrepl.cmdline")
+                 (shell "rlwrap bb clojure -M:dev -m nrepl.cmdline"))}
 
   format_check {:doc "Check for code formatting issues in the src and dev directories"
-                :task (clojure "-M:format -m cljfmt.main check src dev")}
+                :task (clojure "-M:format -m cljfmt.main check src dev test")}
 
   format {:doc "Fix code formatting issues in the src and dev directories"
-          :task (clojure "-M:format -m cljfmt.main fix src dev")}
+          :task (clojure "-M:format -m cljfmt.main fix src dev test")}
 
   lint {:doc "Run linter clj-kondo to detect code issues"
         :task (clojure "-M:lint -m clj-kondo.main --lint .")}
+
+  kaocha {:doc "Run tests with kaocha"
+          :task (clojure "-M:kaocha")}
 
   test {:doc "Run tests"
         :task (apply clojure "-M:test" *command-line-args*)}
