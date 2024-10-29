@@ -1,0 +1,25 @@
+{:tasks
+ {:requires ([babashka.fs :as fs])
+
+  start {:doc "Run the main application"
+         :task (clojure "-M -m example.caveman-demo")}
+
+  nrepl {:doc "Start a REPL with nREPL and CIDER support"
+         :task (if (fs/windows?)
+                 (clojure "-M:nrepl")
+                 (shell "rlwrap bb clojure -M:nrepl"))}
+
+  format_check {:doc "Check for code formatting issues in the src and dev directories"
+                :task (clojure "-M:format -m cljfmt.main check src dev")}
+
+  format {:doc "Fix code formatting issues in the src and dev directories"
+          :task (clojure "-M:format -m cljfmt.main fix src dev")}
+
+  lint {:doc "Run linter clj-kondo to detect code issues"
+        :task (clojure "-M:lint -m clj-kondo.main --lint .")}
+
+  test {:doc "Run tests"
+        :task (apply clojure "-M:test" *command-line-args*)}
+
+  uber {:doc "Build uberjar"
+        :task (clojure "-T:build uber")}}}

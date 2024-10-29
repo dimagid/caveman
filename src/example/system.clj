@@ -4,10 +4,14 @@
    [ring.adapter.jetty :as jetty])
   (:import (org.eclipse.jetty.server Server)))
 
+(set! *warn-on-reflection* true)
+
 (defn start-server
-  []
-  (jetty/run-jetty #'routes/handler {:port 9999
-                                     :join? false}))
+  [system]
+  (jetty/run-jetty
+   (partial #'routes/root-handler system)
+   {:port 9999
+    :join? false}))
 
 (defn stop-server
   [server]
@@ -15,7 +19,8 @@
 
 (defn start-system
   []
-  {::server (start-server)})
+  (let [system-so-far {}]
+    {::server (start-server system-so-far)}))
 
 (defn stop-system
   [system]
