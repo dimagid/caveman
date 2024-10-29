@@ -1,0 +1,85 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
+</section>
+<h1>Check for Outdated Dependencies </h1>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/28_check_for_outdated_dependencies">(code for this section)</a></span>
+</sub>
+<p>Sometimes newer versions of dependencies just add new features. In those cases you only need to upgrade
+if you want to use those features. Sometimes they break behavior. In those cases upgrading can be a hassle and a half.</p>
+<p>But using old versions of libraries can carry risks. As things are used, issues are discovered. As issues are discovered,
+malicious actors will start to take advantage of them.</p>
+<p>As such it makes sense to keep up to date with the latest versions of things and to keep yourself aware of security issues
+as they are discovered. Because doing this manually is impractical, we will use a tool called <code>antq</code>.</p>
+
+<ul>
+    <li>
+        <h2>Add an "<code>outdated</code>" recipe to your <code>Justfile</code></h2>
+        <p>This should directly invoke clojure with <code>com.github.liquidz/antq</code> as a dependency.</p>
+        <p>The reason we don't add an alias for this to the project's <code>deps.edn</code> is that <a href="https://github.com/liquidz/antq">
+            the tool's documentation does not suggest it</a>.</p>
+        <code><pre>help:
+    just --list
+
+run:
+    clojure -M -m example.main
+
+nrepl:
+    clojure -M:dev -m nrepl.cmdline
+
+format_check:
+    clojure -M:format -m cljfmt.main check src dev test
+
+format:
+    clojure -M:format -m cljfmt.main fix src dev test
+
+lint:
+    clojure -M:lint -m clj-kondo.main --lint .
+
+test:
+    clojure -M:dev -m kaocha.runner
+
+<span style="font-weight: bold;">outdated:
+    clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' -M -m antq.core</span></pre></code>
+    </li>
+    <li>
+        <h2>Run <code>just outdated</code> and fix any outdated dependencies.</h2>
+        <p>As the laws of physics dictate you are reading this in a time after it was written, there is almost a certainty
+        that at least one of the libraries you've used so far has a newer version.</p>
+    </li>
+</ul>
+
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/27_run_tests_against_your_database.html"
+            >&larr; Run Tests Against your Database</a
+            >
+        </h1>
+    </div>
+</section>
+
+</body>
+</html>
