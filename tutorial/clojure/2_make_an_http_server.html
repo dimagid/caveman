@@ -1,23 +1,23 @@
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-      <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
-      <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
-      <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
-      <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
-      <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
-      <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
-      <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
-      <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
-      <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-      <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
-      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-      <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-      <link rel="manifest" href="/manifest.json">
-      <meta name="msapplication-TileColor" content="#ffffff">
-      <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
     <style>
         .section-header a {
@@ -29,39 +29,43 @@
         }
     </style>
 </head>
-  <body style="max-width: 800px">
-    <section>
-      <a href="/"><img src="/caveman.jpg" width="100px" /></a>
-    </section>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px"/></a>
+</section>
 
-    <h1>Make an HTTP Server</h1>
-    <sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/2_make_an_http_server">(code for this section)</a></span>
-    </sub>
-    <ul>
-      <li>
-        <h2 class="section-header">
-          Add a dependency to the <code>ring</code> library to your
-          <code>deps.edn</code>
-        </h2>
-        <code>
+<h1>Make an HTTP Server</h1>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/2_make_an_http_server">(code for this section)</a></span>
+</sub>
+<ul>
+    <li>
+        <section id="add-ring-dependency">
+            <h2 class="section-header">
+                <a href="#add-ring-dependency">Add a dependency to the <code>ring</code> library to your
+                    <code>deps.edn</code></a>
+            </h2>
+            <code>
           <pre>
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}}}
            </pre
-          >
-        </code>
+           >
+            </code>
 
-        <p>
-          Ring is the library most everyone in the Clojure world uses for HTTP servers.
-        </p>
-      </li>
-      <li>
-        <h2 class="section-header">
-          Edit your <code>src/example/main.clj</code> file so it has the following
-          contents.
-        </h2>
-        <code>
+            <p>
+                Ring is the library most everyone in the Clojure world uses for HTTP servers.
+            </p>
+        </section>
+    </li>
+    <li>
+        <section id="create-main-clj">
+
+            <h2 class="section-header">
+                <a href="#create-main-clj">Edit your <code>src/example/main.clj</code> file so it has the following
+                    contents.</a>
+            </h2>
+            <code>
           <pre>
 (ns example.main
   (:require [ring.adapter.jetty :as jetty]))
@@ -75,65 +79,75 @@
 (defn -main []
   (jetty/run-jetty #'handler {:port 9999}))</pre
           >
-        </code>
+            </code>
 
-        <p>
-          The <code>handler</code> function takes in an HTTP Request as outlined
-          by
-          <a href="https://github.com/ring-clojure/ring/blob/master/SPEC.md">
-            The Ring Specification</a
-          >
-          and returns a map representing an HTTP Response.
-        </p>
+            <p>
+                The <code>handler</code> function takes in an HTTP Request as outlined
+                by
+                <a href="https://github.com/ring-clojure/ring/blob/master/SPEC.md">
+                    The Ring Specification</a
+                >
+                and returns a map representing an HTTP Response.
+            </p>
 
-        <p>
-          When we call <code>jetty/run-jetty</code> we give it that
-          <code>handler</code> function. A small wrinkle is that little
-          <code>#'</code> in front. That makes it so that if you reload that
-          function in a <code>REPL</code> the server will use the new definition
-          right away.
-        </p>
+            <p>
+                When we call <code>jetty/run-jetty</code> we give it that
+                <code>handler</code> function. A small wrinkle is that little
+                <code>#'</code> in front. That makes it so that if you reload that
+                function in a <code>REPL</code> the server will use the new definition
+                right away.
+            </p>
 
-        <p>
-          For more details on how that works you can dig into
-          <a href="https://clojure.org/reference/vars">Clojure Vars</a>. All you
-          need to know is that when you want to pass a function as an argument
-          and have it work with the <code>REPL</code>, you need to put
-          <code>#'</code> in front.
-        </p>
-      </li>
-      <li>
-        <h2 class="section-header">Run the server with <code>just run</code></h2>
-        <p>You should see a warning like the following. Ignore it for now.</p>
-        <code>
+            <p>
+                For more details on how that works you can dig into
+                <a href="https://clojure.org/reference/vars">Clojure Vars</a>. All you
+                need to know is that when you want to pass a function as an argument
+                and have it work with the <code>REPL</code>, you need to put
+                <code>#'</code> in front.
+            </p>
+
+        </section>
+    </li>
+    <li>
+        <section id="run-the-server">
+
+            <h2 class="section-header"><a href="#run-the-server">Run the server with <code>just run</code></a></h2>
+            <p>You should see a warning like the following. Ignore it for now.</p>
+            <code>
           <pre>
 SLF4J: No SLF4J providers were found.
 SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.</pre
           >
-        </code>
-      </li>
-      <li>
-          <h2 class="section-header">
-          Open your web browser and go to <code>http://localhost:9999</code>
-        </h2>
-          <p>You should see <code>Hello, world</code>.</p>
-      </li>
-    </ul>
+            </code>
 
-    <section>
-      <div>
+        </section>
+    </li>
+    <li>
+        <section id="open-your-web-browser">
+
+            <h2 class="section-header">
+                <a href="#open-your-web-browser">Open your web browser and go to <code>http://localhost:9999</code></a>
+            </h2>
+            <p>You should see <code>Hello, world</code>.</p>
+
+        </section>
+    </li>
+</ul>
+
+<section>
+    <div>
         <h1>
-          <a href="/tutorial/clojure/3_start_an_nrepl_server.html"
+            <a href="/tutorial/clojure/3_start_an_nrepl_server.html"
             >&rarr; Start an nREPL Server</a
-          >
+            >
         </h1>
         <h1>
-          <a href="/tutorial/clojure/1_create_a_project.html"
+            <a href="/tutorial/clojure/1_create_a_project.html"
             >&larr; Create a Project</a
-          >
+            >
         </h1>
-      </div>
-    </section>
-  </body>
+    </div>
+</section>
+</body>
 </html>
