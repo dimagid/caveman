@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -48,12 +48,15 @@
     things when you get requests on different routes.</p>
 <ul>
     <li>
-        <h2 class="section-header">Add <code>reitit</code> to your deps.edn</h2>
-        <p><code>reitit</code> is one of many so-called "routing libraries." These inspect the data you get from an HTTP
-            request and pick a function to use to handle that request.</p>
-        <p>While it is certainly possible to make something like this
-            yourself, it's not worth your time.</p>
-        <code>
+        <section id="add-reitit-to-your-deps-edn">
+            <h2 class="section-header"><a href="#add-reitit-to-your-deps-edn">Add <code>reitit</code> to your
+                deps.edn</a></h2>
+            <p><code>reitit</code> is one of many so-called "routing libraries." These inspect the data you get from an
+                HTTP
+                request and pick a function to use to handle that request.</p>
+            <p>While it is certainly possible to make something like this
+                yourself, it's not worth your time.</p>
+            <code>
           <pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}
@@ -64,14 +67,17 @@
               {nrepl/nrepl {:mvn/version "1.3.0"}}}
            :dev {:extra-paths ["dev"]}}}</pre
           >
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Make a <code>routes</code> function in the <code>routes</code> namespace.</h2>
-        <p>This should take in the <code>system</code> (to be able to forward it to different handlers)
-            and return a data structure which specifies the routes in your application.</p>
-        <p>This should be a "vector of vectors." Easier to show than to explain.</p>
-        <code><pre>(ns example.routes)
+        <section id="make-a-routes-function">
+            <h2 class="section-header"><a href="#make-a-routes-function">Make a <code>routes</code> function in the
+                <code>routes</code> namespace.</a></h2>
+            <p>This should take in the <code>system</code> (to be able to forward it to different handlers)
+                and return a data structure which specifies the routes in your application.</p>
+            <p>This should be a "vector of vectors." Easier to show than to explain.</p>
+            <code><pre>(ns example.routes)
 
 (defn <span style="font-weight: bold;">hello-handler</span>
   [request]
@@ -89,17 +95,21 @@
   [system]
   [["/"        {:get {:handler hello-handler}}]
    ["/goodbye" {:get {:handler goodbye-handler}}]])</span></pre>
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Forward the <code>system</code> to your handlers.</h2>
-        <p>This is crucial. If you don't do this then you'll have to turn to the dark arts
-        in order to make database queries.</p>
-        <p>There are a few ways to do this forwarding, but the simplest is to have your handlers take an extra
-        argument and use <code>partial</code> to "partially apply" that argument. </p>
-        <p>Doing this you turn your handler from
-            a <code>f(system, request) -> response</code> to a <code>f(request) -> response</code>.</p>
-        <code><pre>(ns example.routes)
+        <section id="forward-system-to-your-handlers">
+
+            <h2 class="section-header"><a href="#forward-system-to-your-handlers">Forward the <code>system</code> to
+                your handlers.</a></h2>
+            <p>This is crucial. If you don't do this then you'll have to turn to the dark arts
+                in order to make database queries.</p>
+            <p>There are a few ways to do this forwarding, but the simplest is to have your handlers take an extra
+                argument and use <code>partial</code> to "partially apply" that argument. </p>
+            <p>Doing this you turn your handler from
+                a <code>f(system, request) -> response</code> to a <code>f(request) -> response</code>.</p>
+            <code><pre>(ns example.routes)
 
 (defn hello-handler
   [<span style="font-weight: bold;">system</span> request]
@@ -116,15 +126,20 @@
 (defn routes
   [system]
   [["/"        {:get {:handler <span style="font-weight: bold;">(partial #'hello-handler system)</span>}}]
-   ["/goodbye" {:get {:handler <span style="font-weight: bold;">(partial #'goodbye-handler system)</span>}}]])</pre></code>
+   ["/goodbye" {:get {:handler <span style="font-weight: bold;">(partial #'goodbye-handler system)</span>}}]])</pre>
+            </code>
+
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Make a root handler</h2>
-        <p>This is the actual handler function that will be called for requests. In here we will make use of <code>routes</code>
-        and "compile" a ring handler.</p>
-        <p>If you are astute you will notice that we compile the routes on every request. This will be slow, but convenient
-        for development. Making it fast will come later.</p>
-        <code><pre>(ns example.routes
+        <section id="make-a-root-handler">
+            <h2 class="section-header"><a href="#make-a-root-handler">Make a root handler</a></h2>
+            <p>This is the actual handler function that will be called for requests. In here we will make use of <code>routes</code>
+                and "compile" a ring handler.</p>
+            <p>If you are astute you will notice that we compile the routes on every request. This will be slow, but
+                convenient
+                for development. Making it fast will come later.</p>
+            <code><pre>(ns example.routes
   (:require <span style="font-weight: bold;">[reitit.ring :as reitit-ring]</span>))
 
 (defn hello-handler
@@ -149,15 +164,20 @@
   (let [handler (reitit-ring/ring-handler
                   (reitit-ring/router
                     (routes system)))]
-    (handler request)))</span></pre></code>
+    (handler request)))</span></pre>
+            </code>
+
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Wire the root handler up to the <code>system</code></h2>
-        <p>This gets interesting because clearly the server itself needs access to the <code>system</code>
-        while itself being part of said <code>system</code></p>
-        <p>To handle this we will have a notion of a "system so far." Basically just "everything minus the server."
-        There are tricks to get the server passed down, but they aren't important enough now.</p>
-        <code><pre>(ns example.system
+        <section id="wire-root-handler-to-the-system">
+            <h2 class="section-header"><a href="#wire-root-handler-to-the-system">Wire the root handler up to the <code>system</code></a>
+            </h2>
+            <p>This gets interesting because clearly the server itself needs access to the <code>system</code>
+                while itself being part of said <code>system</code></p>
+            <p>To handle this we will have a notion of a "system so far." Basically just "everything minus the server."
+                There are tricks to get the server passed down, but they aren't important enough now.</p>
+            <code><pre>(ns example.system
   (:require [ring.adapter.jetty :as jetty]
             [example.routes :as routes])
   (:import (org.eclipse.jetty.server Server)))
@@ -180,18 +200,25 @@
 
 (defn stop-system
   [system]
-  (stop-server (::server system)))</pre></code>
+  (stop-server (::server system)))</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">  Open your web browser and go to <code>http://localhost:9999</code> and <code>http://localhost:9999/goodbye</code>
-        </h2>
-        <p>You should see the hello and goodbye example responses, which means that routing is happening as expected</p>
+        <section id="open-your-web-browser">
+            <h2 class="section-header"><a href="#open-your-web-browser">Open your web browser and go to <code>http://localhost:9999</code>
+                and <code>http://localhost:9999/goodbye</code>
+            </a></h2>
+            <p>You should see the hello and goodbye example responses, which means that routing is happening as
+                expected</p>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Add a "Not Found" handler.</h2>
-        <p>This is just a fallback for when someone hits a route that you didn't expect them to.
-        Dedicated 404 responses are preferable to the server barfing in a strange way.</p>
-        <code><pre>(ns example.routes
+        <section id="add-not-found-handler">
+            <h2 class="section-header"><a href="#add-not-found-handler">Add a "Not Found" handler.</a></h2>
+            <p>This is just a fallback for when someone hits a route that you didn't expect them to.
+                Dedicated 404 responses are preferable to the server barfing in a strange way.</p>
+            <code><pre>(ns example.routes
   (:require [reitit.ring :as reitit-ring]))
 
 (defn hello-handler
@@ -223,12 +250,16 @@
                   (reitit-ring/router
                     (routes system))
                   <span style="font-weight: bold;">#'not-found-handler</span>)]
-    (handler request)))</pre></code>
+    (handler request)))</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Try a non-existent route like <code>/abc</code>
-        </h2>
-        <p>You should see the 404 response.</p>
+        <section id="try-a-non-existent-route">
+            <h2 class="section-header">Try a non-existent route like <code>/abc</code>
+            </h2>
+            <p>You should see the 404 response.</p>
+        </section>
     </li>
 </ul>
 

@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -35,38 +35,45 @@
 </section>
 
 <h1>Create a development-only <code>user</code> Namespace.</h1>
-<sub><span ><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/6_create_a_user_namespace">(code for this section)</a></span>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/6_create_a_user_namespace">(code for this section)</a></span>
 </sub>
 <p>While doing interactive development, it's important to have a place to put
     code that is useful for that purpose, but maybe isn't appropriate for the software you ultimately ship.</p>
 <ul>
     <li>
-        <h2 class="section-header">Create a file named <code>dev/user.clj</code></h2>
-        <p>
-            Most REPLs will automatically load in any <code>user</code> namespace.
-            This makes it the easiest place to put "development only" code.
-        </p>
-        <code>
+        <section id="create-dev-user-clj">
+            <h2 class="section-header"><a href="#create-dev-user-clj">Create a file named <code>dev/user.clj</code></a>
+            </h2>
+            <p>
+                Most REPLs will automatically load in any <code>user</code> namespace.
+                This makes it the easiest place to put "development only" code.
+            </p>
+            <code>
           <pre>
 (ns user)
            </pre
            >
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Add a <code>:dev</code> alias to your <code>deps.edn</code>.</h2>
-        <p>
-            You want to have the <code>dev</code> folder included as an extra
-            path.
-        </p>
-        <p>
-            Because <code>user.clj</code> is treated specially, you can run into
-            <a href="https://github.com/Oddsor/userclj-footgun?tab=readme-ov-file">wacky behavior during distribution</a>
-            if you include it in your normal build. So the alias serves to make sure <code>dev/user.clj</code>
-            is only on the path during development.
-        </p>
+        <section id="add-a-dev-alias-to-your-deps-edn">
 
-        <code>
+            <h2 class="section-header"><a href="#add-a-dev-alias-to-your-deps-edn">Add a <code>:dev</code> alias to your
+                <code>deps.edn</code>.</a></h2>
+            <p>
+                You want to have the <code>dev</code> folder included as an extra
+                path.
+            </p>
+            <p>
+                Because <code>user.clj</code> is treated specially, you can run into
+                <a href="https://github.com/Oddsor/userclj-footgun?tab=readme-ov-file">wacky behavior during
+                    distribution</a>
+                if you include it in your normal build. So the alias serves to make sure <code>dev/user.clj</code>
+                is only on the path during development.
+            </p>
+
+            <code>
           <pre>
 {:paths ["src"]
  :deps {...}
@@ -74,20 +81,24 @@
            :dev {:extra-paths ["dev"]}}}
              </pre
              >
-        </code>
+            </code>
+
+        </section>
     </li>
     <li>
-        <h2 class="section-header">
-            Add the <code>dev</code> folder to your <code>:nREPL</code> alias as
-            well.
-        </h2>
-        <p>
-            Seeing as you will only be using <code>nREPL</code> during
-            development, this is needed. We can merge <code>:dev</code> and
-            <code>:nREPL</code> eventually if they become too much to keep in
-            sync.
-        </p>
-        <code>
+        <section id="add-the-dev-folder-to-your-nrepl-alias">
+            <h2 class="section-header">
+                <a href="#add-the-dev-folder-to-your-nrepl-alias">Add the <code>dev</code> folder to your
+                    <code>:nREPL</code> alias as
+                    well.</a>
+            </h2>
+            <p>
+                Seeing as you will only be using <code>nREPL</code> during
+                development, this is needed. We can merge <code>:dev</code> and
+                <code>:nREPL</code> eventually if they become too much to keep in
+                sync.
+            </p>
+            <code>
           <pre>
 {:paths ["src"]
  :deps {...}
@@ -98,33 +109,38 @@
            :dev {:extra-paths ["dev"]}}}
              </pre
              >
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">
-            Put a <code>def</code> at the top assigning <code>system</code> to
-            <code>nil</code>.
-        </h2>
-        <code>
+        <section id="def-system-nil">
+            <h2 class="section-header">
+                <a href="#def-system-nil">Put a <code>def</code> at the top assigning <code>system</code> to
+                    <code>nil</code>.</a>
+            </h2>
+            <code>
           <pre>
 <span style="font-weight: bold;">(ns user)
 
 (def system nil)</span></pre>
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Put a <code>start-system!</code> function in <code>user</code>.</h2>
-        <p>
-            This should call <code>start-system</code> from
-            <code>example.system</code> and set the value of the
-            <code>system</code> var to the return value.
-        </p>
-        <p>
-            If a system is already started - which you can tell by checking is
-            <code>system</code> is <code>nil</code> - you can print a message and
-            exit early.
-        </p>
-        <code>
+        <section id="put-start-system-in-user">
+            <h2 class="section-header"><a href="#put-start-system-in-user">Put a <code>start-system!</code> function in
+                <code>user</code>.</a></h2>
+            <p>
+                This should call <code>start-system</code> from
+                <code>example.system</code> and set the value of the
+                <code>system</code> var to the return value.
+            </p>
+            <p>
+                If a system is already started - which you can tell by checking is
+                <code>system</code> is <code>nil</code> - you can print a message and
+                exit early.
+            </p>
+            <code>
           <pre>
 (ns user
   (:require [example.system :as system]))
@@ -136,12 +152,15 @@
   (if system
     (println "Already Started")
     (alter-var-root #'system (constantly (system/start-system)))))</span></pre>
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Put a <code>stop-system!</code> function in <code>user</code>.</h2>
-        <p>If no system has been started this should be a noop.</p>
-        <code>
+        <section id="put-stop-system-in-user">
+            <h2 class="section-header"><a href="#put-stop-system-in-user">Put a <code>stop-system!</code> function in
+                <code>user</code>.</a></h2>
+            <p>If no system has been started this should be a noop.</p>
+            <code>
           <pre>
 (ns user
   (:require [example.system :as system]))
@@ -160,13 +179,16 @@
     (system/stop-system system)
     (alter-var-root #'system (constantly nil))))</span></pre
           >
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Put a <code>restart-system</code> function in <code>user</code></h2>
-        <p>When you want a quick way to turn your system off and back on again, it's nice to have such a function
-            available.</p>
-        <code><pre>(ns user
+        <section id="put-restart-system-in-user">
+            <h2 class="section-header"><a href="#put-restart-system-in-user">Put a <code>restart-system</code> function
+                in <code>user</code></a></h2>
+            <p>When you want a quick way to turn your system off and back on again, it's nice to have such a function
+                available.</p>
+            <code><pre>(ns user
   (:require [example.system :as system]))
 
 (def system nil)
@@ -188,15 +210,20 @@
   (stop-system!)
   (start-system!))</span>
 
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Put a <code>server</code> function in <code>user</code>.</h2>
-        <p>
-            The purpose of this will be to let code access the running
-            <code>server</code>.
-        </p>
-        <code>
+        <section id="put-a-server-function-in-user">
+
+            <h2 class="section-header"><a href="#put-a-server-function-in-user">Put a <code>server</code> function in
+                <code>user</code>.</a></h2>
+            <p>
+                The purpose of this will be to let code access the running
+                <code>server</code>.
+            </p>
+            <code>
           <pre>
 (ns user
   (:require [example.system :as system]))
@@ -217,14 +244,18 @@
 <span style="font-weight: bold;">(defn server
   []
   (::system/server system))</span></pre>
-        </code>
+            </code>
+
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Configure your editor</h2>
-        <p>Now that we have a <code>:dev</code> alias which includes your development only code,
-            you need to make sure your editor uses that alias when you are developing.</p>
-        <p>Again I will defer to the official documentation of those tools. For both Calva and Cursive its
-            simply a button to click in the UI.</p>
+        <section id="configure-your-editor">
+            <h2 class="section-header"><a href="#configure-your-editor">Configure your editor</a></h2>
+            <p>Now that we have a <code>:dev</code> alias which includes your development only code,
+                you need to make sure your editor uses that alias when you are developing.</p>
+            <p>Again I will defer to the official documentation of those tools. For both Calva and Cursive its
+                simply a button to click in the UI.</p>
+        </section>
     </li>
 </ul>
 
