@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -39,7 +48,7 @@
     things when you get requests on different routes.</p>
 <ul>
     <li>
-        <h2>Add <code>reitit</code> to your deps.edn</h2>
+        <h2 class="section-header">Add <code>reitit</code> to your deps.edn</h2>
         <p><code>reitit</code> is one of many so-called "routing libraries." These inspect the data you get from an HTTP
             request and pick a function to use to handle that request.</p>
         <p>While it is certainly possible to make something like this
@@ -58,7 +67,7 @@
         </code>
     </li>
     <li>
-        <h2>Make a <code>routes</code> function in the <code>routes</code> namespace.</h2>
+        <h2 class="section-header">Make a <code>routes</code> function in the <code>routes</code> namespace.</h2>
         <p>This should take in the <code>system</code> (to be able to forward it to different handlers)
             and return a data structure which specifies the routes in your application.</p>
         <p>This should be a "vector of vectors." Easier to show than to explain.</p>
@@ -83,7 +92,7 @@
         </code>
     </li>
     <li>
-        <h2>Forward the <code>system</code> to your handlers.</h2>
+        <h2 class="section-header">Forward the <code>system</code> to your handlers.</h2>
         <p>This is crucial. If you don't do this then you'll have to turn to the dark arts
         in order to make database queries.</p>
         <p>There are a few ways to do this forwarding, but the simplest is to have your handlers take an extra
@@ -110,7 +119,7 @@
    ["/goodbye" {:get {:handler <span style="font-weight: bold;">(partial #'goodbye-handler system)</span>}}]])</pre></code>
     </li>
     <li>
-        <h2>Make a root handler</h2>
+        <h2 class="section-header">Make a root handler</h2>
         <p>This is the actual handler function that will be called for requests. In here we will make use of <code>routes</code>
         and "compile" a ring handler.</p>
         <p>If you are astute you will notice that we compile the routes on every request. This will be slow, but convenient
@@ -143,7 +152,7 @@
     (handler request)))</span></pre></code>
     </li>
     <li>
-        <h2>Wire the root handler up to the <code>system</code></h2>
+        <h2 class="section-header">Wire the root handler up to the <code>system</code></h2>
         <p>This gets interesting because clearly the server itself needs access to the <code>system</code>
         while itself being part of said <code>system</code></p>
         <p>To handle this we will have a notion of a "system so far." Basically just "everything minus the server."
@@ -174,12 +183,12 @@
   (stop-server (::server system)))</pre></code>
     </li>
     <li>
-        <h2>  Open your web browser and go to <code>http://localhost:9999</code> and <code>http://localhost:9999/goodbye</code>
+        <h2 class="section-header">  Open your web browser and go to <code>http://localhost:9999</code> and <code>http://localhost:9999/goodbye</code>
         </h2>
         <p>You should see the hello and goodbye example responses, which means that routing is happening as expected</p>
     </li>
     <li>
-        <h2>Add a "Not Found" handler.</h2>
+        <h2 class="section-header">Add a "Not Found" handler.</h2>
         <p>This is just a fallback for when someone hits a route that you didn't expect them to.
         Dedicated 404 responses are preferable to the server barfing in a strange way.</p>
         <code><pre>(ns example.routes
@@ -217,7 +226,7 @@
     (handler request)))</pre></code>
     </li>
     <li>
-        <h2>Try a non-existent route like <code>/abc</code>
+        <h2 class="section-header">Try a non-existent route like <code>/abc</code>
         </h2>
         <p>You should see the 404 response.</p>
     </li>

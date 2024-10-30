@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -32,7 +41,7 @@ server.</p>
 <p>First though, we should take a minute to structure the rest of the code for growth.</p>
 <ul>
     <li>
-        <h2>Put route handlers into namespaces based on the page they will serve.</h2>
+        <h2 class="section-header">Put route handlers into namespaces based on the page they will serve.</h2>
         <p>Right now we only have the "index" page (<code>/</code>) and the <code>/goodbye</code> route, so it might not
         be clear why we would bother reorganizing anything.</p>
         <p>It happens that when you make a server that serves HTML you tend to have multiple routes serving any given page.
@@ -108,7 +117,7 @@ server.</p>
 </pre></code>
     </li>
     <li>
-        <h2>Instead of exposing handler functions directly, expose a function which returns <code>reitit</code> routes</h2>
+        <h2 class="section-header">Instead of exposing handler functions directly, expose a function which returns <code>reitit</code> routes</h2>
         <p>By doing this we can hook up multiple handlers at once and also have a place to later put page specific middleware.</p>
         <p><b><code>src/example/hello/routes.clj</code>:</b></p>
         <code><pre>(ns example.hello.routes

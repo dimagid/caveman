@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -32,7 +41,7 @@
     code that is useful for that purpose, but maybe isn't appropriate for the software you ultimately ship.</p>
 <ul>
     <li>
-        <h2>Create a file named <code>dev/user.clj</code></h2>
+        <h2 class="section-header">Create a file named <code>dev/user.clj</code></h2>
         <p>
             Most REPLs will automatically load in any <code>user</code> namespace.
             This makes it the easiest place to put "development only" code.
@@ -45,7 +54,7 @@
         </code>
     </li>
     <li>
-        <h2>Add a <code>:dev</code> alias to your <code>deps.edn</code>.</h2>
+        <h2 class="section-header">Add a <code>:dev</code> alias to your <code>deps.edn</code>.</h2>
         <p>
             You want to have the <code>dev</code> folder included as an extra
             path.
@@ -68,7 +77,7 @@
         </code>
     </li>
     <li>
-        <h2>
+        <h2 class="section-header">
             Add the <code>dev</code> folder to your <code>:nREPL</code> alias as
             well.
         </h2>
@@ -92,7 +101,7 @@
         </code>
     </li>
     <li>
-        <h2>
+        <h2 class="section-header">
             Put a <code>def</code> at the top assigning <code>system</code> to
             <code>nil</code>.
         </h2>
@@ -104,7 +113,7 @@
         </code>
     </li>
     <li>
-        <h2>Put a <code>start-system!</code> function in <code>user</code>.</h2>
+        <h2 class="section-header">Put a <code>start-system!</code> function in <code>user</code>.</h2>
         <p>
             This should call <code>start-system</code> from
             <code>example.system</code> and set the value of the
@@ -130,7 +139,7 @@
         </code>
     </li>
     <li>
-        <h2>Put a <code>stop-system!</code> function in <code>user</code>.</h2>
+        <h2 class="section-header">Put a <code>stop-system!</code> function in <code>user</code>.</h2>
         <p>If no system has been started this should be a noop.</p>
         <code>
           <pre>
@@ -154,7 +163,7 @@
         </code>
     </li>
     <li>
-        <h2>Put a <code>restart-system</code> function in <code>user</code></h2>
+        <h2 class="section-header">Put a <code>restart-system</code> function in <code>user</code></h2>
         <p>When you want a quick way to turn your system off and back on again, it's nice to have such a function
             available.</p>
         <code><pre>(ns user
@@ -182,7 +191,7 @@
 </pre></code>
     </li>
     <li>
-        <h2>Put a <code>server</code> function in <code>user</code>.</h2>
+        <h2 class="section-header">Put a <code>server</code> function in <code>user</code>.</h2>
         <p>
             The purpose of this will be to let code access the running
             <code>server</code>.
@@ -211,7 +220,7 @@
         </code>
     </li>
     <li>
-        <h2>Configure your editor</h2>
+        <h2 class="section-header">Configure your editor</h2>
         <p>Now that we have a <code>:dev</code> alias which includes your development only code,
             you need to make sure your editor uses that alias when you are developing.</p>
         <p>Again I will defer to the official documentation of those tools. For both Calva and Cursive its

@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -29,7 +38,7 @@
 </sub>
 <ul>
     <li>
-        <h2>Add <code>next.jdbc</code>, the Postgres JDBC driver, and <code>HikariCP</code> to your <code>deps.edn</code>.</h2>
+        <h2 class="section-header">Add <code>next.jdbc</code>, the Postgres JDBC driver, and <code>HikariCP</code> to your <code>deps.edn</code>.</h2>
         <p>JDBC is how most everything on the JVM talks to their databases. <code>next.jdbc</code>
         is a wrapper of that for Clojure programs.</p>
         <p>All you need to do to be able to use the Postgres driver is to have it in your dependencies.</p>
@@ -53,7 +62,7 @@
     </li>
 
     <li>
-        <h2>Add code to connect to Postgres into your <code>system</code> namespace.</h2>
+        <h2 class="section-header">Add code to connect to Postgres into your <code>system</code> namespace.</h2>
         <p>This should include the code to start and stop the connections as well as the code to
         attach the "<code>db</code>" to the <code>system</code></p>
         <code><pre>(ns example.system
@@ -99,7 +108,7 @@
   (stop-server (::server system)))</pre></code>
     </li>
     <li>
-        <h2>Query the database in one of your handlers</h2>
+        <h2 class="section-header">Query the database in one of your handlers</h2>
         <p>To get access to parts of the system, we use an <code>:as-alias</code> require in our <code>routes</code> along
             with destructuring. If we didn't use <code>:as-alias</code> then there would be circular namespace dependencies, which is no good.
         Not having the alias at all would be cumbersome as well.</p>
@@ -127,11 +136,11 @@
 </pre></code>
     </li>
     <li>
-        <h2>Verify that connecting to the database works.</h2>
+        <h2 class="section-header">Verify that connecting to the database works.</h2>
         <p>Visit the route you added database logic to. See that the query does get executed.</p>
     </li>
     <li>
-        <h2>Add a <code>db</code> function to your <code>user</code> namespace</h2>
+        <h2 class="section-header">Add a <code>db</code> function to your <code>user</code> namespace</h2>
         <p>This way, when you are in the REPL you can write <code>(user/db)</code> to get access to your database
         for making ad-hoc queries.</p>
         <code><pre>(ns user

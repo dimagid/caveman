@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -32,7 +41,7 @@ This can lead to you having multiple ways of doing the same task or keeping a li
 <p>One way to combat this is with comments.</p>
 <ul>
     <li>
-        <h2>Add comments above your dependencies in <code>deps.edn</code>.</h2>
+        <h2 class="section-header">Add comments above your dependencies in <code>deps.edn</code>.</h2>
         <p>Exactly what comments to put is more art than science, but aiming to keep it
         short and sweet is a decent strategy.</p>
         <p>Some things don't deserve a special note, of course. You won't need to later figure out

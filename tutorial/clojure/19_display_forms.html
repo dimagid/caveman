@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -32,7 +41,7 @@
 
 <ul>
     <li>
-        <h2>Put the following into <code>src/example/cave/routes.clj</code>.</h2>
+        <h2 class="section-header">Put the following into <code>src/example/cave/routes.clj</code>.</h2>
         <code><pre>(ns example.cave.routes
   (:require [hiccup2.core :as hiccup]))
 
@@ -67,7 +76,7 @@
    ["/cave/create" {:post {:handler (partial #'cave-create-handler system)}}]])</pre></code>
     </li>
     <li>
-        <h2>Register the cave routes in <code>src/example/routes.clj</code></h2>
+        <h2 class="section-header">Register the cave routes in <code>src/example/routes.clj</code></h2>
         <code><pre>(ns example.routes
   (:require [clojure.tools.logging :as log]
             <span style="font-weight: bold;">[example.cave.routes :as cave-routes]</span>
@@ -87,7 +96,7 @@
     </li>
 
     <li>
-        <h2>Go to <code>/cave</code> and test out the form.</h2>
+        <h2 class="section-header">Go to <code>/cave</code> and test out the form.</h2>
         <p>You should land on <code>/cave/create</code> with <code>TODO</code> on the screen. We'll loop back to this
         after making some middleware.</p>
     </li>

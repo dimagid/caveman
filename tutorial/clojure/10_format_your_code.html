@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -34,7 +43,7 @@ let unproductive disagreements dominate their time.</p>
 can be a good idea.</p>
 <ul>
     <li>
-        <h2>Add an alias for <code>cljfmt</code> to your deps.edn</h2>
+        <h2 class="section-header">Add an alias for <code>cljfmt</code> to your deps.edn</h2>
         <p>We are ultimately going to rely on our <code>Justfile</code>
         so we are going to make a regular alias, not one with <code>:main-opts</code></p>
         <code><pre>{:paths ["src"]
@@ -52,13 +61,13 @@ can be a good idea.</p>
            <span style="font-weight: bold;">:format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}</span>}}</pre></code>
     </li>
     <li>
-        <h2>Make a <code>.cljfmt.edn</code></h2>
+        <h2 class="section-header">Make a <code>.cljfmt.edn</code></h2>
         <p>This file is where you can put configuration for <code>cljfmt</code>. I tend to think
         that <code>sort-ns-references?</code> should be on for my projects, so lets use that as the example.</p>
         <code><pre>{:sort-ns-references? true}</pre></code>
     </li>
     <li>
-        <h2>Add recipes to your <code>Justfile</code> for checking and fixing the format of your code
+        <h2 class="section-header">Add recipes to your <code>Justfile</code> for checking and fixing the format of your code
         </h2>
         <p>Checking format without fixing it is useful to make automatic checks in CI.</p>
         <code><pre>help:
@@ -77,11 +86,11 @@ format:
     clojure -M:format -m cljfmt.main fix src dev</span></pre></code>
     </li>
     <li>
-        <h2>Run <code>just format_check</code></h2>
+        <h2 class="section-header">Run <code>just format_check</code></h2>
         <p>You will likely see some issues unless you are a cyborg with perfect typing skills.</p>
     </li>
     <li>
-        <h2>Run <code>just format</code></h2>
+        <h2 class="section-header">Run <code>just format</code></h2>
         <p>This should fix any errors reported above and <code>just format_check</code> will start to exit normally.</p>
     </li>
 </ul>

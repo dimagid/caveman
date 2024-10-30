@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -32,7 +41,7 @@ When code is deployed it's subpar to compile a reitit router on every request.</
 
 <ul>
     <li>
-        <h2>Add an <code>ENVIRONMENT</code> variable to your <code>.env</code> file.</h2>
+        <h2 class="section-header">Add an <code>ENVIRONMENT</code> variable to your <code>.env</code> file.</h2>
         <p>For development, we will set <code>ENVIRONMENT</code> to <code>development</code>.
             For production, <code>production</code>, etc.</p>
         <code><pre><span style="font-weight: bold;">ENVIRONMENT=development</span>
@@ -42,7 +51,7 @@ PORT=9999</pre></code>
     </li>
 
     <li>
-        <h2>Add a curried overload to <code>root-handler</code></h2>
+        <h2 class="section-header">Add a curried overload to <code>root-handler</code></h2>
         <p>Currying is when you take a function that takes more than one argument and turn it into a series of
         functions that return functions which each take a single argument.</p>
         <p>The reason we do this is so that we can either provide both the <code>system</code>
@@ -73,7 +82,7 @@ PORT=9999</pre></code>
     </li>
 
     <li>
-        <h2>Change <code>start-server</code> to use the two argument overload in development
+        <h2 class="section-header">Change <code>start-server</code> to use the two argument overload in development
             and the curried overload when not in development.</h2>
         <p>You can validate that this works properly by changing the <code>ENVIRONMENT</code> variable
         and hot loading in a change to your routes. When its set to <code>development</code> that should work,
@@ -106,7 +115,7 @@ PORT=9999</pre></code>
     </li>
 
     <li>
-        <h2>Name the anonymous function inside of <code>root-handler</code></h2>
+        <h2 class="section-header">Name the anonymous function inside of <code>root-handler</code></h2>
         <p>When something goes wrong, a named function is easier to pick out in a stack trace than
         one without a name. We are going to reuse the name of <code>root-handler</code>
         because that will point you at the right place in the code, even if it looks a little redundant.</p>

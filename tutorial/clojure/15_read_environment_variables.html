@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -33,7 +42,7 @@
 your configuration using environment variables.</p>
 <ul>
     <li>
-        <h2>Add <code>dotenv-java</code> to your <code>deps.edn</code>.</h2>
+        <h2 class="section-header">Add <code>dotenv-java</code> to your <code>deps.edn</code>.</h2>
         <p>There are more solutions to this - like <code>direnv</code> or bash profiles - but this
         is the one we are going with for the moment.</p>
 
@@ -55,7 +64,7 @@ your configuration using environment variables.</p>
            :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
     </li>
     <li>
-        <h2>Add an <code>env</code> component to the system.</h2>
+        <h2 class="section-header">Add an <code>env</code> component to the system.</h2>
         <p>This is all the other components will read from as they start up to access environment variables.
         In this way we can make whatever is in <code>.env</code> be available as if it was an environment variable
         in dev and use real environment variables when we deploy.</p>
@@ -108,7 +117,7 @@ your configuration using environment variables.</p>
   (stop-server (::server system)))</pre></code>
     </li>
     <li>
-        <h2>Read the server <code>PORT</code>, <code>POSTGRES_USERNAME</code>, <code>POSTGRES_PASSWORD</code>
+        <h2 class="section-header">Read the server <code>PORT</code>, <code>POSTGRES_USERNAME</code>, <code>POSTGRES_PASSWORD</code>
         from the environment</h2>
         <p>First add those values to the <code>.env</code> file.</p>
         <code><pre>POSTGRES_USERNAME=postgres
@@ -174,7 +183,7 @@ PORT=9999</pre></code>
         </ol>
     </li>
     <li>
-        <h2>Add an <code>env</code> function to your <code>user</code> namespace</h2>
+        <h2 class="section-header">Add an <code>env</code> function to your <code>user</code> namespace</h2>
         <code><pre>(ns user
   (:require [example.system :as system]))
 

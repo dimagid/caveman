@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -33,7 +42,7 @@
 a row in a <code>cave</code> table is foreign keys.</p>
 <ul>
     <li>
-        <h2>Create a <code>hominid</code> table.</h2>
+        <h2 class="section-header">Create a <code>hominid</code> table.</h2>
         <p>This should have the standard <code>id</code>, <code>created_at</code>, <code>updated_at</code>,
         and the trigger to keep <code>updated_at</code> updated.</p>
         <p>In addition, we'll say that a <code>hominid</code> has a single <code>cave_id</code> where
@@ -58,7 +67,7 @@ DROP TABLE prehistoric.hominid;</pre></code>
     </li>
 
     <li>
-        <h2>Have <code>cave_id</code> be a foreign key</h2>
+        <h2 class="section-header">Have <code>cave_id</code> be a foreign key</h2>
         <p>You want to write out the <code>on update restrict on delete restrict</code>.
         It's not the default behavior but it's the least potentially problem causing.</p>
         <code><pre>-- // create_hominid_table
@@ -81,7 +90,7 @@ EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
 DROP TABLE prehistoric.hominid;</pre></code>
     </li>
     <li>
-        <h2>Make indexes on your foreign keys</h2>
+        <h2 class="section-header">Make indexes on your foreign keys</h2>
         <p>I don't have hard data on this, but every time I make a foreign key relationship and don't make indexes
         that cover the related columns I come to regret it.</p>
         <code><pre>-- // create_hominid_table

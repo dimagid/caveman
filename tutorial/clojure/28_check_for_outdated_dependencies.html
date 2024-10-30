@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -36,7 +45,7 @@ as they are discovered. Because doing this manually is impractical, we will use 
 
 <ul>
     <li>
-        <h2>Add an "<code>outdated</code>" recipe to your <code>Justfile</code></h2>
+        <h2 class="section-header">Add an "<code>outdated</code>" recipe to your <code>Justfile</code></h2>
         <p>This should directly invoke clojure with <code>com.github.liquidz/antq</code> as a dependency.</p>
         <p>The reason we don't add an alias for this to the project's <code>deps.edn</code> is that <a href="https://github.com/liquidz/antq">
             the tool's documentation does not suggest it</a>.</p>
@@ -65,7 +74,7 @@ test:
     clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' -M -m antq.core</span></pre></code>
     </li>
     <li>
-        <h2>Run <code>just outdated</code> and fix any outdated dependencies.</h2>
+        <h2 class="section-header">Run <code>just outdated</code> and fix any outdated dependencies.</h2>
         <p>As the laws of physics dictate you are reading this in a time after it was written, there is almost a certainty
         that at least one of the libraries you've used so far has a newer version.</p>
     </li>

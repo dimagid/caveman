@@ -18,8 +18,17 @@
       <link rel="manifest" href="/manifest.json">
       <meta name="msapplication-TileColor" content="#ffffff">
       <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-      <meta name="theme-color" content="#ffffff">
-  </head>
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
   <body style="max-width: 800px">
     <section>
       <a href="/"><img src="/caveman.jpg" width="100px" /></a>
@@ -29,7 +38,7 @@
     </sub>
     <ul>
       <li>
-        <h2>Make a folder for your project and <code>cd</code> into it.</h2>
+        <h2 class="section-header">Make a folder for your project and <code>cd</code> into it.</h2>
         <code>
           <pre>
 $ mkdir project
@@ -38,7 +47,7 @@ $ cd project</pre
         </code>
       </li>
       <li>
-        <h2>
+        <h2 class="section-header">
           Create a file called <code>Justfile</code> and put the following into
           it.
         </h2>
@@ -51,7 +60,7 @@ help:
         </code>
       </li>
       <li>
-        <h2>Test that using <code>just help</code></h2>
+        <h2 class="section-header">Test that using <code>just help</code></h2>
         <code>
           <pre>
 $ just help
@@ -63,7 +72,7 @@ Available recipes:
       </li>
 
       <li>
-        <h2>
+        <h2 class="section-header">
           Make file named <code>deps.edn</code> with the
           following contents.
         </h2>
@@ -80,7 +89,7 @@ Available recipes:
         </code>
       </li>
       <li>
-        <h2>Pick a top level namespace for your project.</h2>
+        <h2 class="section-header">Pick a top level namespace for your project.</h2>
         <p>
           For the rest of this we will use <code>example</code>, but feel free
           to pick something else. Just replace <code>example</code> in all the
@@ -89,11 +98,11 @@ Available recipes:
       </li>
 
         <li>
-            <h2>Create a folder named <code>src</code></h2>
+            <h2 class="section-header">Create a folder named <code>src</code></h2>
             <code><pre>$ mkdir -p src</pre></code>
         </li>
       <li>
-        <h2>
+        <h2 class="section-header">
            Make a <code>src/example/main.clj</code> file with
           following contents.
         </h2>
@@ -107,7 +116,7 @@ Available recipes:
         </code>
       </li>
       <li>
-        <h2>Run that file</h2>
+        <h2 class="section-header">Run that file</h2>
         <code>
           <pre>
 $ clojure -M -m example.main
@@ -122,7 +131,7 @@ Hello, world</pre
         </p>
       </li>
       <li>
-        <h2>Add the command to run that file to your <code>Justfile</code></h2>
+        <h2 class="section-header">Add the command to run that file to your <code>Justfile</code></h2>
         <code>
           <pre>
 # Shows available recipes
@@ -135,7 +144,7 @@ run:
         </code>
       </li>
       <li>
-          <h2>Run your project with <code>just run</code></h2>
+          <h2 class="section-header">Run your project with <code>just run</code></h2>
           <p>
           This will be very useful once running your project takes more than an
           easy to remember command.

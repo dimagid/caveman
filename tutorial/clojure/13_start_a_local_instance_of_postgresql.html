@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -32,7 +41,7 @@ an audience that loves their Datomics and XTDBs, but the rest of this is focused
 <p>If you get to the end I'm sure it would be clear how you would slot in your alternative database of choice.</p>
 <ul>
     <li>
-        <h2>Make a <code>docker-compose.yaml</code> file and put the following into it.</h2>
+        <h2 class="section-header">Make a <code>docker-compose.yaml</code> file and put the following into it.</h2>
         <p>This will let us start an instance of Postgres on the correct version for everyone working on the code. In addition
         it can be helpful when there are changes that require a wipe or a restart to have all your data be in a project-local folder like
         <code>./data/db</code>.</p>
@@ -55,11 +64,11 @@ an audience that loves their Datomics and XTDBs, but the rest of this is focused
 
     </li>
     <li>
-        <h2>Make a file named <code>.env</code> and put the following into it.</h2>
+        <h2 class="section-header">Make a file named <code>.env</code> and put the following into it.</h2>
         <code><pre>POSTGRES_PASSWORD=postgres</pre></code>
     </li>
     <li>
-        <h2>Add <code>.env</code> to a <code>.gitignore</code> file.</h2>
+        <h2 class="section-header">Add <code>.env</code> to a <code>.gitignore</code> file.</h2>
         <p>The rest of will try to not be <code>git</code> specific, but this one in particular is worth calling out. Accidentally
         commiting a <code>.env</code> file is one of those things that's easy to do by mistake if you are not careful. And its
         important not to, because you can leak API keys and similar that way.</p>
@@ -71,7 +80,7 @@ an audience that loves their Datomics and XTDBs, but the rest of this is focused
 data</pre></code>
     </li>
     <li>
-        <h2>Run <code>docker compose up -d</code></h2>
+        <h2 class="section-header">Run <code>docker compose up -d</code></h2>
         <p>This should download start up postgres in the background.</p>
     </li>
 </ul>

@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -32,7 +41,7 @@
     to work with. I am choosing to go with caveman themed examples.</p>
 <ul>
     <li>
-        <h2>Make a new migration using <code>migrate new</code>.</h2>
+        <h2 class="section-header">Make a new migration using <code>migrate new</code>.</h2>
         <p>For this and other commands to work you need to be in the <code>migrations</code>
         directory.</p>
         <code><pre>$ migrate new create_cave_table
@@ -51,7 +60,7 @@ Done!
 </pre></code>
     </li>
     <li>
-        <h2>Create a schema for your tables</h2>
+        <h2 class="section-header">Create a schema for your tables</h2>
         <p>Edit this first migration so that we are creating a schema in the up migration and dropping it in the down migration.</p>
         <code><pre>CREATE SCHEMA prehistoric;
 
@@ -62,7 +71,7 @@ DROP SCHEMA prehistoric;</pre></code>
         to at least be able to group those into broad categories.</p>
     </li>
     <li>
-        <h2>Create a <code>cave</code> table in the <code>prehistoric</code> table.</h2>
+        <h2 class="section-header">Create a <code>cave</code> table in the <code>prehistoric</code> table.</h2>
         <p>Most tables I make in postgres I will give a <code>uuid</code> primary key,
             a <code>created_at</code> column and an <code>updated_at</code> column.</p>
         <p>After that it's whatever is unique about the data stored in the table. For our cave example,
@@ -82,7 +91,7 @@ DROP SCHEMA prehistoric;</pre></code>
 DROP SCHEMA prehistoric;</pre></code>
     </li>
     <li>
-        <h2>Create a trigger to automatically set <code>updated_at</code></h2>
+        <h2 class="section-header">Create a trigger to automatically set <code>updated_at</code></h2>
         <p>Manually setting <code>updated_at</code> is error-prone. Ideally we can use a database
         trigger to keep it up to date automatically.</p>
         <p>To pull that off we need to first create a function within the schema that sets a row's <code>updated_at</code>
@@ -123,7 +132,7 @@ DROP SCHEMA prehistoric;</pre></code>
         you don't need anything special in the down migration to remove it. Just dropping the table will be enough.</p>
     </li>
     <li>
-        <h2>Run the migration with <code>migrate up</code></h2>
+        <h2 class="section-header">Run the migration with <code>migrate up</code></h2>
         <p>This should create the table in the database.</p>
         <code><pre>$ migrate up
 ------------------------------------------------------------------------
@@ -167,7 +176,7 @@ EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
 </pre></code>
     </li>
     <li>
-        <h2>Undo the migration with <code>migrate down</code></h2>
+        <h2 class="section-header">Undo the migration with <code>migrate down</code></h2>
         <p>This is just to verify you wrote the down migration sensibly. You can <code>migrate up</code> after verifying this works.</p>
     </li>
 </ul>

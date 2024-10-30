@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -31,7 +40,7 @@
     responses.</p>
 <ul>
     <li>
-        <h2>Add <code>hiccup</code> to your deps.edn</h2>
+        <h2 class="section-header">Add <code>hiccup</code> to your deps.edn</h2>
         <p>This is a library which takes data structures and produces HTML.</p>
         <p>The upside to using something like this to produce HTML is that you can have
         your HTML embedded directly into the code without a separate templating language.</p>
@@ -53,7 +62,7 @@
         </code>
     </li>
     <li>
-        <h2>Render HTML in your handlers</h2>
+        <h2 class="section-header">Render HTML in your handlers</h2>
         <p>It's important to only use the <code>hiccup2.core</code> namespace. The <code>hiccup.core</code>
         one has some intrinsic problems you don't want to deal with.</p>
         <p>Similarly to <code>reitit</code> routes, the input here is a data structure. There are tools for converting HTML

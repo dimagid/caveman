@@ -19,6 +19,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body style="max-width: 800px">
 <section>
@@ -29,7 +38,7 @@
 
     <li>
         <section id="learn-clojure">
-            <a href="#learn-clojure" style="color: inherit; text-decoration: inherit;"><h2>Learn Clojure</h2></a>
+            <h2 class="section-header"><a href="#learn-clojure">Learn Clojure</a></h2>
             <p>Before proceeding, make sure you feel comfortable writing code in Clojure.
                 If you don't know Clojure yet head to<a href="https://clojure.camp/">
                     https://clojure.camp/
@@ -38,7 +47,7 @@
     </li>
     <li>
         <section id="use-linux">
-            <a href="#use-linux" style="color: inherit; text-decoration: inherit;"><h2>Use Linux</h2></a>
+            <h2 class="section-header"><a href="#use-linux">Use Linux</a></h2>
             <p>
                 You need a Linux or Linux-like computer. Windows Subsystem for Linux
                 (WSL) and MacOS should work just fine.
@@ -53,7 +62,7 @@
     </li>
     <li>
         <section id="install-just">
-            <a href="#install-just" style="color: inherit; text-decoration: inherit;"><h2>Install Just</h2></a>
+            <h2 class="section-header"><a href="#install-just" >Install Just</a></h2>
             <p>
                 This is a tool that will remember the commands you need to run to do
                 stuff. Remembering stuff is hard so you'll want this.
@@ -68,7 +77,7 @@
     </li>
     <li>
         <section id="install-sdkman">
-            <a href="#install-sdkman" style="color: inherit; text-decoration: inherit;"><h2>Install SDKMan</h2></a>
+            <h2 class="section-header"><a href="#install-sdkman">Install SDKMan</a></h2>
             <p>This is a tool that helps you set up other tools.</p>
             <code>
                 <pre>curl -s "https://get.sdkman.io" | bash</pre>
@@ -77,7 +86,7 @@
     </li>
     <li>
         <section id="install-java">
-            <a href="#install-java" style="color: inherit; text-decoration: inherit;"><h2>Install Java</h2></a>
+            <h2 class="section-header"><a href="#install-java">Install Java</a></h2>
             <p>Once you have SDKMan, this shouldn't be that hard to do.</p>
             <code>
                 <pre>sdk install java 23-tem</pre>
@@ -86,10 +95,8 @@
     </li>
     <li>
         <section id="install-the-clojure-cli">
-            <a href="#install-the-clojure-cli" style="color: inherit; text-decoration: inherit;">
-                <h2>Install the Clojure
-                    CLI</h2>
-            </a>
+            <h2 class="section-header"><a href="#install-the-clojure-cli">Install the Clojure CLI</a></h2>
+
             <p>This is needed to run Clojure code.</p>
             <p>
                 You can find installation instructions
@@ -99,9 +106,7 @@
     </li>
     <li>
         <section id="install-mybatis-migrations">
-            <a href="#install-mybatis-migrations" style="color: inherit; text-decoration: inherit;">
-                <h2>Install MyBatis Migrations</h2>
-            </a>
+            <h2 class="section-header"><a href="#install-mybatis-migrations">Install MyBatis Migrations</a></h2>
             <p>This will help us later when we need to work with a database.</p>
             <code>
                 <pre>sdk install mybatis</pre>
@@ -111,9 +116,8 @@
     </li>
     <li>
         <section id="install-docker">
-            <a href="#install-docker" style="color: inherit; text-decoration: inherit;">
-                <h2>Install Docker</h2>
-            </a>
+            <h2 class="section-header"><a href="#install-docker">Install Docker</a></h2>
+
             <p>
                 You will need Docker when we get around to setting up a Database and
                 when you package up your app for deployment.

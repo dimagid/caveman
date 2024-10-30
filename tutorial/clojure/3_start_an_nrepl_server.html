@@ -19,7 +19,16 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
-  </head>
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
   <body style="max-width: 800px">
     <section>
       <a href="/"><img src="/caveman.jpg" width="100px" /></a>
@@ -35,7 +44,7 @@
     guide on that process for the moment.</p>
     <ul>
       <li>
-        <h2>
+        <h2 class="section-header">
           Add an alias to your <code>deps.edn</code> for <code>nREPL</code>
         </h2>
         <code>
@@ -53,7 +62,7 @@
       </li>
 
       <li>
-        <h2>
+        <h2 class="section-header">
           Add a recipe to your <code>Justfile</code> for running
           <code>nREPL</code>.
         </h2>
@@ -77,7 +86,7 @@ nrepl:
       </li>
 
       <li>
-        <h2>Connect to <code>nREPL</code> from your editor.</h2>
+        <h2 class="section-header">Connect to <code>nREPL</code> from your editor.</h2>
         <p>
           The instructions for this vary based on your editor. For the Clojure
           VSCode plugin, the documentation is

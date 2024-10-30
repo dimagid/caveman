@@ -18,8 +18,17 @@
       <link rel="manifest" href="/manifest.json">
       <meta name="msapplication-TileColor" content="#ffffff">
       <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-      <meta name="theme-color" content="#ffffff">
-  </head>
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
   <body style="max-width: 800px">
     <section>
       <a href="/"><img src="/caveman.jpg" width="100px" /></a>
@@ -30,7 +39,7 @@
     </sub>
     <ul>
       <li>
-        <h2>Create a file named <code>src/example/routes.clj</code></h2>
+        <h2 class="section-header">Create a file named <code>src/example/routes.clj</code></h2>
         <p>
           <code>
             <pre>
@@ -42,7 +51,7 @@
       </li>
 
       <li>
-        <h2>
+        <h2 class="section-header">
           Cut and paste the <code>handler</code> function to that namespace.
         </h2>
         <code>
@@ -59,7 +68,7 @@
         </code>
       </li>
       <li>
-        <h2>
+        <h2 class="section-header">
           Make your <code>example.main</code> namespace refer to that function.
         </h2>
         <p>Make sure to retain the <code>#'</code>.</p>
@@ -76,7 +85,7 @@
         </code>
       </li>
       <li>
-          <h2>
+          <h2 class="section-header">
           Test to make sure your server still works with <code>just run</code>
         </h2>
         <p>Nothing behavior-wise should be different.</p>
