@@ -30,6 +30,7 @@
 !.cljstyle
 !.dir-locals.el
 !compose.yaml
+!docker-compose.yaml
 !Dockerfile
 !.dockerignore
 !Makefile

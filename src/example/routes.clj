@@ -1,33 +1,18 @@
 (ns example.routes
   (:require
    [clojure.tools.logging :as log]
+   [example.cave.routes :as cave-routes]
+   [example.goodbye.routes :as goodbye-routes]
+   [example.hello.routes :as hello-routes]
    [hiccup2.core :as hiccup]
    [reitit.ring :as reitit-ring]))
 
-(defn hello-handler
-  [_system _request]
-  {:status 200
-   :headers {"Content-Type" "text/html"}
-   :body (str
-          (hiccup/html
-           [:html
-            [:body
-             [:h1 "Hello, world"]]]))})
-
-(defn goodbye-handler
-  [_system _request]
-  {:status 200
-   :headers {"Content-Type" "text/html"}
-   :body (str
-          (hiccup/html
-           [:html
-            [:body
-             [:h1 "Goodbye, world"]]]))})
-
 (defn routes
   [system]
-  [["/" {:get {:handler (partial #'hello-handler system)}}]
-   ["/goodbye" {:get {:handler (partial #'goodbye-handler system)}}]])
+  [""
+   (cave-routes/routes system)
+   (hello-routes/routes system)
+   (goodbye-routes/routes system)])
 
 (defn not-found-handler
   [_request]
