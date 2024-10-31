@@ -78,8 +78,7 @@
             <code><pre>(ns example.cave.jobs
   (:require [example.system :as-alias system]
             <span style="font-weight: bold;">[honey.sql :as sql]</span>
-            [next.jdbc :as jdbc])
-  (:import (java.util UUID)))
+            [next.jdbc :as jdbc]))
 
 (set! *warn-on-reflection* true)
 
@@ -90,7 +89,7 @@
    <span style="font-weight: bold;">(sql/format
     {:insert-into :prehistoric/hominid
      :values [{:name    "Grunk"
-               :cave_id (UUID/fromString (:id payload))}]}))</span>)
+               :cave_id (parse-uuid (:id payload))}]}))</span>)
 
 (defn handlers
   []
