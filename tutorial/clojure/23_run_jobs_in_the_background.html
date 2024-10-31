@@ -343,7 +343,8 @@ DROP FUNCTION prehistoric_cave_insert_function;</pre>
                 the more generically useful approach though, so its worth showing.</p>
             <code><pre>(ns example.cave.jobs
   (:require [example.system :as-alias system]
-            [next.jdbc :as jdbc]))
+            [next.jdbc :as jdbc])
+  (:import (java.util UUID)))
 
 (set! *warn-on-reflection* true)
 
@@ -354,7 +355,7 @@ DROP FUNCTION prehistoric_cave_insert_function;</pre>
    ["INSERT INTO prehistoric.hominid(name, cave_id)
       VALUES (?, ?)"
     "Grunk"
-    (parse-uuid (:id payload))]))
+    (UUID/fromString (:id payload))]))
 
 (defn handlers
   []

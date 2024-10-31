@@ -1,6 +1,7 @@
 (ns example.cave.jobs
   (:require [example.system :as-alias system]
-            [next.jdbc :as jdbc]))
+            [next.jdbc :as jdbc])
+  (:import (java.util UUID)))
 
 (set! *warn-on-reflection* true)
 
@@ -11,7 +12,7 @@
    ["INSERT INTO prehistoric.hominid(name, cave_id)
       VALUES (?, ?)"
     "Grunk"
-    (parse-uuid (:id payload))]))
+    (UUID/fromString (:id payload))]))
 
 (defn handlers
   []
