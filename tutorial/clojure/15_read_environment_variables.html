@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -39,14 +39,16 @@
 <p>It might surprise you to learn that <code>postgres</code> is probably not going to be the password
     for your production database.</p>
 <p>To have something that can work in development as well as where you deploy it, you should read
-your configuration using environment variables.</p>
+    your configuration using environment variables.</p>
 <ul>
     <li>
-        <h2 class="section-header">Add <code>dotenv-java</code> to your <code>deps.edn</code>.</h2>
-        <p>There are more solutions to this - like <code>direnv</code> or bash profiles - but this
-        is the one we are going with for the moment.</p>
+        <section id="add-dotenv-java-to-your-deps-edn">
+            <h2 class="section-header"><a href="#add-dotenv-java-to-your-deps-edn">Add <code>dotenv-java</code> to your
+                <code>deps.edn</code>.</a></h2>
+            <p>There are more solutions to this - like <code>direnv</code> or bash profiles - but this
+                is the one we are going with for the moment.</p>
 
-        <code><pre>{:paths ["src"]
+            <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}
         metosin/reitit-ring {:mvn/version "0.7.2"}
@@ -61,14 +63,19 @@ your configuration using environment variables.</p>
                  :extra-deps {nrepl/nrepl {:mvn/version "1.3.0"}
                               lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
-           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Add an <code>env</code> component to the system.</h2>
-        <p>This is all the other components will read from as they start up to access environment variables.
-        In this way we can make whatever is in <code>.env</code> be available as if it was an environment variable
-        in dev and use real environment variables when we deploy.</p>
-        <code><pre>(ns example.system
+        <section id="add-an-env-component">
+            <h2 class="section-header"><a href="#add-an-env-component">Add an <code>env</code> component to the system.</a>
+            </h2>
+            <p>This is all the other components will read from as they start up to access environment variables.
+                In this way we can make whatever is in <code>.env</code> be available as if it was an environment
+                variable
+                in dev and use real environment variables when we deploy.</p>
+            <code><pre>(ns example.system
   (:require [example.routes :as routes]
             [next.jdbc.connection :as connection]
             [ring.adapter.jetty :as jetty])
@@ -114,17 +121,22 @@ your configuration using environment variables.</p>
 (defn stop-system
   [system]
   (stop-db (::db system))
-  (stop-server (::server system)))</pre></code>
+  (stop-server (::server system)))</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Read the server <code>PORT</code>, <code>POSTGRES_USERNAME</code>, <code>POSTGRES_PASSWORD</code>
-        from the environment</h2>
-        <p>First add those values to the <code>.env</code> file.</p>
-        <code><pre>POSTGRES_USERNAME=postgres
+        <section id="read-env-variables">
+            <h2 class="section-header"><a href="#read-env-variables">Read the server <code>PORT</code>, <code>POSTGRES_USERNAME</code>,
+                <code>POSTGRES_PASSWORD</code>
+                from the environment</a></h2>
+            <p>First add those values to the <code>.env</code> file.</p>
+            <code><pre>POSTGRES_USERNAME=postgres
 POSTGRES_PASSWORD=postgres
-PORT=9999</pre></code>
-        <p>Then read values off the <code>env</code> component when making other components.</p>
-        <code><pre>(ns example.system
+PORT=9999</pre>
+            </code>
+            <p>Then read values off the <code>env</code> component when making other components.</p>
+            <code><pre>(ns example.system
   (:require [example.routes :as routes]
             [next.jdbc.connection :as connection]
             [ring.adapter.jetty :as jetty])
@@ -170,21 +182,31 @@ PORT=9999</pre></code>
 (defn stop-system
   [system]
   (stop-db (::db system))
-  (stop-server (::server system)))</pre></code>
+  (stop-server (::server system)))</pre>
+            </code>
 
-        <p>I know, I can hear your Clojure senses tingling. Isn't <code>env</code> conceptually just a map? Why are we using
-        a Java library for this?</p>
-        <p>It boils down to two factors.</p>
-        <ol>
-            <li><code>dotenv-java</code> is more well maintained than Clojure equivalents. Not that things can't be "done" and not require further maintenance.
-            If you have a library you prefer, have at it.</li>
-            <li>It's conceptually a map, but we only are going to be reading it here and it being an opaque Java object
-            has the nice benefit of its <code>toString</code> implementation not leaking sensitive info by default.</li>
-        </ol>
+            <p>I know, I can hear your Clojure senses tingling. Isn't <code>env</code> conceptually just a map? Why are
+                we using
+                a Java library for this?</p>
+            <p>It boils down to two factors.</p>
+            <ol>
+                <li><code>dotenv-java</code> is more well maintained than Clojure equivalents. Not that things can't be
+                    "done" and not require further maintenance.
+                    If you have a library you prefer, have at it.
+                </li>
+                <li>It's conceptually a map, but we only are going to be reading it here and it being an opaque Java
+                    object
+                    has the nice benefit of its <code>toString</code> implementation not leaking sensitive info by
+                    default.
+                </li>
+            </ol>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Add an <code>env</code> function to your <code>user</code> namespace</h2>
-        <code><pre>(ns user
+        <section id="add-an-env-function-to-your-user-namespace">
+            <h2 class="section-header"><a href="#add-an-env-function-to-your-user-namespace">Add an <code>env</code>
+                function to your <code>user</code> namespace</a></h2>
+            <code><pre>(ns user
   (:require [example.system :as system]))
 
 (def system nil)
@@ -216,7 +238,9 @@ PORT=9999</pre></code>
 
 <span style="font-weight: bold;">(defn env
   []
-  (::system/env system))</span></pre></code>
+  (::system/env system))</span></pre>
+            </code>
+        </section>
     </li>
 </ul>
 <section>

@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,10 +41,12 @@
     to work with. I am choosing to go with caveman themed examples.</p>
 <ul>
     <li>
-        <h2 class="section-header">Make a new migration using <code>migrate new</code>.</h2>
-        <p>For this and other commands to work you need to be in the <code>migrations</code>
-        directory.</p>
-        <code><pre>$ migrate new create_cave_table
+        <section id="make-a-new-migration">
+            <h2 class="section-header"><a href="#make-a-new-migration">Make a new migration using <code>migrate
+                new</code>.</a></h2>
+            <p>For this and other commands to work you need to be in the <code>migrations</code>
+                directory.</p>
+            <code><pre>$ migrate new create_cave_table
 ------------------------------------------------------------------------
 -- MyBatis Migrations - new
 ------------------------------------------------------------------------
@@ -57,26 +59,36 @@ Done!
 -- Finished at: Tue Oct 22 19:21:55 EDT 2024
 -- Final Memory: 5M/504M
 ------------------------------------------------------------------------
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Create a schema for your tables</h2>
-        <p>Edit this first migration so that we are creating a schema in the up migration and dropping it in the down migration.</p>
-        <code><pre>CREATE SCHEMA prehistoric;
+        <section id="create-a-schema-for-your-tables">
+            <h2 class="section-header"><a href="#create-a-schema-for-your-tables">Create a schema for your tables</a>
+            </h2>
+            <p>Edit this first migration so that we are creating a schema in the up migration and dropping it in the
+                down migration.</p>
+            <code><pre>CREATE SCHEMA prehistoric;
 
 -- //@UNDO
-DROP SCHEMA prehistoric;</pre></code>
-        <p>The reason to do this instead of putting tables in the default schema is simple - it will get cluttered.
-        For servers of any significant size it's a likely that you will eventually have hundreds of tables. It's nice
-        to at least be able to group those into broad categories.</p>
+DROP SCHEMA prehistoric;</pre>
+            </code>
+            <p>The reason to do this instead of putting tables in the default schema is simple - it will get cluttered.
+                For servers of any significant size it's a likely that you will eventually have hundreds of tables. It's
+                nice
+                to at least be able to group those into broad categories.</p>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Create a <code>cave</code> table in the <code>prehistoric</code> table.</h2>
-        <p>Most tables I make in postgres I will give a <code>uuid</code> primary key,
-            a <code>created_at</code> column and an <code>updated_at</code> column.</p>
-        <p>After that it's whatever is unique about the data stored in the table. For our cave example,
-        lets say to start all caves have is a <code>description</code>.</p>
-        <code><pre>CREATE SCHEMA prehistoric;
+        <section id="create-a-cave-table">
+            <h2 class="section-header"><a href="#create-a-cave-table">Create a <code>cave</code> table in the <code>prehistoric</code>
+                table.</a></h2>
+            <p>Most tables I make in postgres I will give a <code>uuid</code> primary key,
+                a <code>created_at</code> column and an <code>updated_at</code> column.</p>
+            <p>After that it's whatever is unique about the data stored in the table. For our cave example,
+                lets say to start all caves have is a <code>description</code>.</p>
+            <code><pre>CREATE SCHEMA prehistoric;
 
 <span style="font-weight: bold;">CREATE TABLE prehistoric.cave(
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -88,15 +100,20 @@ DROP SCHEMA prehistoric;</pre></code>
 -- //@UNDO
 <span style="font-weight: bold;">DROP TABLE prehistoric.cave;</span>
 
-DROP SCHEMA prehistoric;</pre></code>
+DROP SCHEMA prehistoric;</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Create a trigger to automatically set <code>updated_at</code></h2>
-        <p>Manually setting <code>updated_at</code> is error-prone. Ideally we can use a database
-        trigger to keep it up to date automatically.</p>
-        <p>To pull that off we need to first create a function within the schema that sets a row's <code>updated_at</code>
-        to the current time as well as a trigger to execute that function whenever a row changes.</p>
-        <code><pre>CREATE SCHEMA prehistoric;
+        <section id="create-a-trigger-to-set-updated-at">
+            <h2 class="section-header"><a href="#create-a-trigger-to-set-updated-at">Create a trigger to automatically
+                set <code>updated_at</code></a></h2>
+            <p>Manually setting <code>updated_at</code> is error-prone. Ideally we can use a database
+                trigger to keep it up to date automatically.</p>
+            <p>To pull that off we need to first create a function within the schema that sets a row's
+                <code>updated_at</code>
+                to the current time as well as a trigger to execute that function whenever a row changes.</p>
+            <code><pre>CREATE SCHEMA prehistoric;
 
 <span style="font-weight: bold;">CREATE FUNCTION prehistoric.set_current_timestamp_updated_at()
 RETURNS TRIGGER AS $$
@@ -126,15 +143,22 @@ DROP TABLE prehistoric.cave;
 
 <span style="font-weight: bold;">DROP FUNCTION prehistoric.set_current_timestamp_updated_at;</span>
 
-DROP SCHEMA prehistoric;</pre></code>
-        <p>We only need to create the function once per schema. We can then re-use it for any future tables with a similar shape (which will be most of them.)
-        If you are creating the trigger to set <code>updated_at</code> in the same migration as creating the table (which you should) then
-        you don't need anything special in the down migration to remove it. Just dropping the table will be enough.</p>
+DROP SCHEMA prehistoric;</pre>
+            </code>
+            <p>We only need to create the function once per schema. We can then re-use it for any future tables with a
+                similar shape (which will be most of them.)
+                If you are creating the trigger to set <code>updated_at</code> in the same migration as creating the
+                table (which you should) then
+                you don't need anything special in the down migration to remove it. Just dropping the table will be
+                enough.</p>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Run the migration with <code>migrate up</code></h2>
-        <p>This should create the table in the database.</p>
-        <code><pre>$ migrate up
+        <section id="run-the-migration">
+            <h2 class="section-header"><a href="#run-the-migration">Run the migration with <code>migrate up</code></a>
+            </h2>
+            <p>This should create the table in the database.</p>
+            <code><pre>$ migrate up
 ------------------------------------------------------------------------
 -- MyBatis Migrations - up
 ------------------------------------------------------------------------
@@ -173,11 +197,17 @@ EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
 -- Finished at: Tue Oct 22 19:42:43 EDT 2024
 -- Final Memory: 14M/504M
 ------------------------------------------------------------------------
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Undo the migration with <code>migrate down</code></h2>
-        <p>This is just to verify you wrote the down migration sensibly. You can <code>migrate up</code> after verifying this works.</p>
+        <section id="undo-the-migration">
+            <h2 class="section-header"><a href="#undo-the-migration">Undo the migration with <code>migrate
+                down</code></a></h2>
+            <p>This is just to verify you wrote the down migration sensibly. You can <code>migrate up</code> after
+                verifying this works.</p>
+        </section>
     </li>
 </ul>
 <section>

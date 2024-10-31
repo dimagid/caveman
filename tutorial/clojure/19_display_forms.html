@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,8 +41,10 @@
 
 <ul>
     <li>
-        <h2 class="section-header">Put the following into <code>src/example/cave/routes.clj</code>.</h2>
-        <code><pre>(ns example.cave.routes
+        <section id="put-the-following-into-cave-routes">
+            <h2 class="section-header"><a href="#put-the-following-into-cave-routes">Put the following into <code>src/example/cave/routes.clj</code>.</a>
+            </h2>
+            <code><pre>(ns example.cave.routes
   (:require [hiccup2.core :as hiccup]))
 
 (defn cave-create-handler
@@ -73,11 +75,15 @@
 (defn routes
   [system]
   [["/cave" {:get {:handler (partial #'cave-handler system)}}]
-   ["/cave/create" {:post {:handler (partial #'cave-create-handler system)}}]])</pre></code>
+   ["/cave/create" {:post {:handler (partial #'cave-create-handler system)}}]])</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Register the cave routes in <code>src/example/routes.clj</code></h2>
-        <code><pre>(ns example.routes
+        <section id="register-cave-routes">
+            <h2 class="section-header"><a href="#register-cave-routes">Register the cave routes in <code>src/example/routes.clj</code></a>
+            </h2>
+            <code><pre>(ns example.routes
   (:require [clojure.tools.logging :as log]
             <span style="font-weight: bold;">[example.cave.routes :as cave-routes]</span>
             [example.goodbye.routes :as goodbye-routes]
@@ -92,13 +98,18 @@
    (hello-routes/routes system)
    (goodbye-routes/routes system)])
 
-...</pre></code>
+...</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Go to <code>/cave</code> and test out the form.</h2>
-        <p>You should land on <code>/cave/create</code> with <code>TODO</code> on the screen. We'll loop back to this
-        after making some middleware.</p>
+        <section id="go-to-cave">
+            <h2 class="section-header"><a href="#go-to-cave">Go to <code>/cave</code> and test out the form.</a></h2>
+            <p>You should land on <code>/cave/create</code> with <code>TODO</code> on the screen. We'll loop back to
+                this
+                after making some middleware.</p>
+        </section>
     </li>
 </ul>
 <section>

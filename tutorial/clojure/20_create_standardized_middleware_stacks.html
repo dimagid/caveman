@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -34,26 +34,29 @@
     <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
 </section>
 <h1>Create "Standardized" Middleware Stacks </h1>
-<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/20_create_standardized_middleware_stacks">(code for this section)</a></span>
+<sub><span><a
+        href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/20_create_standardized_middleware_stacks">(code for this section)</a></span>
 </sub>
 <p>Middleware is code that wraps a handler function. This is usually done to either respond to the request
-before reading the wrapped handler or to parse information out of a request and make it available to that same
-handler.</p>
+    before reading the wrapped handler or to parse information out of a request and make it available to that same
+    handler.</p>
 <p>This is all well and good, but if you start to have routes have their own bespoke stacks of middleware
-it can be a nightmare to debug and change later. Its especially onerous if you have to reason about "trees"
-of these middlewares</p>
-<p> Therefore, I think it makes sense to take two pre-emptive steps
+    it can be a nightmare to debug and change later. Its especially onerous if you have to reason about "trees"
+    of these middlewares</p>
+<p> Therefore, I think it makes sense to take two pre-emptive steps</p>
 
 <ol>
     <li>Sequester "standard" middlewares into a dedicated namespace.</li>
     <li>Have each <code>routes</code> namespace pick their own middleware from those standard sets.</li>
-</ol></p>
+</ol>
 <ul>
     <li>
-        <h2 class="section-header">Add <code>ring-defaults</code> to your <code>deps.edn</code>.</h2>
-        <p>There is a pretty high chance that you might need to make your own "defaults" instead of
-        purely relying on what this gives you. Its a decent starting point though.</p>
-        <code><pre>{:paths ["src"]
+        <section id="add-ring-defaults-to-your-deps-edn">
+            <h2 class="section-header"><a href="#add-ring-defaults-to-your-deps-edn">Add <code>ring-defaults</code> to
+                your <code>deps.edn</code>.</a></h2>
+            <p>There is a pretty high chance that you might need to make your own "defaults" instead of
+                purely relying on what this gives you. Its a decent starting point though.</p>
+            <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}
         metosin/reitit-ring {:mvn/version "0.7.2"}
@@ -69,26 +72,36 @@ of these middlewares</p>
                  :extra-deps {nrepl/nrepl {:mvn/version "1.3.0"}
                               lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
-           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Put the following into <code>src/example/middleware.clj</code></h2>
-        <p>This takes in the <code>system</code> as a matter of convention - some middlewares you write in the future
-            could want to access stateful things. Good example is authentication middlewares. Those might reasonably want
-        to make database queries.</p>
-        <code><pre>(ns example.middleware
+        <section id="put-the-following-into-middleware">
+            <h2 class="section-header"><a href="#put-the-following-into-middleware">Put the following into <code>src/example/middleware.clj</code></a>
+            </h2>
+            <p>This takes in the <code>system</code> as a matter of convention - some middlewares you write in the
+                future
+                could want to access stateful things. Good example is authentication middlewares. Those might reasonably
+                want
+                to make database queries.</p>
+            <code><pre>(ns example.middleware
   (:require
     [ring.middleware.defaults :as middleware-defaults]))
 
 (defn standard-html-route-middleware
   [_system]
   [#(middleware-defaults/wrap-defaults % middleware-defaults/site-defaults)])
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Edit src/example/cave/routes.clj to use the standard middleware</h2>
-        <p>After this we should be ready to actually process the data passed into the form.</p>
-        <code><pre>(ns example.cave.routes
+        <section id="edit-cave-routes-to-use-standard-middleware">
+            <h2 class="section-header"><a href="#edit-cave-routes-to-use-standard-middleware">Edit
+                src/example/cave/routes.clj to use the standard middleware</a></h2>
+            <p>After this we should be ready to actually process the data passed into the form.</p>
+            <code><pre>(ns example.cave.routes
   (:require [hiccup2.core :as hiccup]
             <span style="font-weight: bold;">[example.middleware :as middleware]</span>))
 
@@ -99,7 +112,9 @@ of these middlewares</p>
   <span style="font-weight: bold;">[""
    {:middleware (middleware/standard-html-route-middleware system)}
    [["/cave" {:get {:handler (partial #'cave-handler system)}}]
-    ["/cave/create" {:post {:handler (partial #'cave-create-handler system)}}]]]</span>)</pre></code>
+    ["/cave/create" {:post {:handler (partial #'cave-create-handler system)}}]]]</span>)</pre>
+            </code>
+        </section>
     </li>
 </ul>
 <section>

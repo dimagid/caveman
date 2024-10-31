@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -38,13 +38,14 @@
 </sub>
 <ul>
     <li>
-        <h2 class="section-header">Add an anti-forgery field to the form.</h2>
-        <p>This is needed for a form submission to work now with the <code>site-defaults</code>
-        middleware set.</p>
-        <p>The basic concept behind an anti-forgery field is to make sure that if someone
-            gives you a form submit request, they were not tricked into doing that by a different site.
-        There is more to it, but its not too relevant at the moment.</p>
-        <code><pre>(ns example.cave.routes
+        <section id="add-anti-forgery-field">
+            <h2 class="section-header"><a href="#add-anti-forgery-field">Add an anti-forgery field to the form.</a></h2>
+            <p>This is needed for a form submission to work now with the <code>site-defaults</code>
+                middleware set.</p>
+            <p>The basic concept behind an anti-forgery field is to make sure that if someone
+                gives you a form submit request, they were not tricked into doing that by a different site.
+                There is more to it, but its not too relevant at the moment.</p>
+            <code><pre>(ns example.cave.routes
   (:require [hiccup2.core :as hiccup]
             [example.middleware :as middleware]
             <span style="font-weight: bold;">[ring.util.anti-forgery :as anti-forgery]</span>))
@@ -77,15 +78,19 @@
                  [:label {:for "description"} "Description"]
                  [:input {:name "description" :type "text"}]
                  [:input {:type "submit"}]]]]))})
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Insert a new row based on the given description.</h2>
-        <p>To do this you need to pull the <code>db</code> out of the <code>system</code>
-        and then use <code>next.jdbc</code> to make the insert</p>
-        <p>Also, instead of returning HTML directly, redirect back to <code>/cave</code>.</p>
-        <code><pre>(ns example.cave.routes
+        <section id="insert-row-based-on-description">
+            <h2 class="section-header"><a href="#insert-row-based-on-description">Insert a new row based on the given
+                description.</a></h2>
+            <p>To do this you need to pull the <code>db</code> out of the <code>system</code>
+                and then use <code>next.jdbc</code> to make the insert</p>
+            <p>Also, instead of returning HTML directly, redirect back to <code>/cave</code>.</p>
+            <code><pre>(ns example.cave.routes
   (:require [example.middleware :as middleware]
             <span style="font-weight: bold;">[example.system :as-alias system]</span>
             [hiccup2.core :as hiccup]
@@ -102,13 +107,17 @@
        description])
     (response/redirect "/cave"))</span>))
 
-...</pre></code>
+...</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Display existing rows.</h2>
-        <p>Now if we make a query we can show all the existing cave rows. This way you will see the names of any existing caves,
-        submit a new one, and immediately see it in the list when you hit submit.</p>
-        <code><pre>(defn cave-handler
+        <section id="display-existing-rows">
+            <h2 class="section-header"><a href="#display-existing-rows">Display existing rows.</a></h2>
+            <p>Now if we make a query we can show all the existing cave rows. This way you will see the names of any
+                existing caves,
+                submit a new one, and immediately see it in the list when you hit submit.</p>
+            <code><pre>(defn cave-handler
   [<span style="font-weight: bold;">{::system/keys [db]}</span> _request]
   (let [caves (jdbc/execute!
                 db
@@ -129,9 +138,11 @@
                    (hiccup/raw (anti-forgery/anti-forgery-field))
                    [:label {:for "description"} "Description"]
                    [:input {:name "description" :type "text"}]
-                   [:input {:type "submit"}]]]]))}))</pre></code>
-        <p>If all goes well, you should end up with something like the following screenshot.</p>
-        <img src="21/screenshot.png" alt="Screenshot of expected output" >
+                   [:input {:type "submit"}]]]]))}))</pre>
+            </code>
+            <p>If all goes well, you should end up with something like the following screenshot.</p>
+            <img src="21/screenshot.png" alt="Screenshot of expected output">
+        </section>
     </li>
 </ul>
 <section>

@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -37,20 +37,24 @@
 <sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/18_group_route_handlers_by_page">(code for this section)</a></span>
 </sub>
 <p>Now that we can talk to a database we are on the cusp of adding actual interesting behavior to this
-server.</p>
+    server.</p>
 <p>First though, we should take a minute to structure the rest of the code for growth.</p>
 <ul>
     <li>
-        <h2 class="section-header">Put route handlers into namespaces based on the page they will serve.</h2>
-        <p>Right now we only have the "index" page (<code>/</code>) and the <code>/goodbye</code> route, so it might not
-        be clear why we would bother reorganizing anything.</p>
-        <p>It happens that when you make a server that serves HTML you tend to have multiple routes serving any given page.
-        What we want is for no route - or as few routes as possible - to be used for serving multiple pages. If
-        we don't take this step early it can become a hairball.</p>
+        <section id="put-route-handlers-into-namespaces">
+            <h2 class="section-header"><a href="#put-route-handlers-into-namespaces">Put route handlers into namespaces
+                based on the page they will serve.</a></h2>
+            <p>Right now we only have the "index" page (<code>/</code>) and the <code>/goodbye</code> route, so it might
+                not
+                be clear why we would bother reorganizing anything.</p>
+            <p>It happens that when you make a server that serves HTML you tend to have multiple routes serving any
+                given page.
+                What we want is for no route - or as few routes as possible - to be used for serving multiple pages. If
+                we don't take this step early it can become a hairball.</p>
 
-        <p>So in <code>src/example/hello/routes.clj</code> you should have:</p>
+            <p>So in <code>src/example/hello/routes.clj</code> you should have:</p>
 
-        <code><pre>(ns example.hello.routes
+            <code><pre>(ns example.hello.routes
   (:require [example.system :as-alias system]
             [hiccup2.core :as hiccup]
             [next.jdbc :as jdbc]))
@@ -66,10 +70,11 @@ server.</p>
             (hiccup/html
              [:html
               [:body
-               [:h1 (str "Hello, " planet)]]]))}))</pre></code>
+               [:h1 (str "Hello, " planet)]]]))}))</pre>
+            </code>
 
-        <p>In <code>src/example/goodbye/routes.clj</code> you would have:</p>
-        <code><pre>(ns example.goodbye.routes
+            <p>In <code>src/example/goodbye/routes.clj</code> you would have:</p>
+            <code><pre>(ns example.goodbye.routes
   (:require [hiccup2.core :as hiccup]))
 
 (defn goodbye-handler
@@ -80,11 +85,13 @@ server.</p>
           (hiccup/html
            [:html
             [:body
-             [:h1 "Goodbye, world"]]]))})</pre></code>
+             [:h1 "Goodbye, world"]]]))})</pre>
+            </code>
 
-        <p>And finally back in <code>src/example/routes.clj</code> you should reference those two new namespaces.</p>
+            <p>And finally back in <code>src/example/routes.clj</code> you should reference those two new namespaces.
+            </p>
 
-        <code><pre>(ns example.routes
+            <code><pre>(ns example.routes
   (:require [clojure.tools.logging :as log]
             <span style="font-weight: bold;">[example.goodbye.routes :as goodbye-routes]</span>
             <span style="font-weight: bold;">[example.hello.routes :as hello-routes]</span>
@@ -114,13 +121,18 @@ server.</p>
                   (routes system))
                  #'not-found-handler)]
     (handler request)))
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Instead of exposing handler functions directly, expose a function which returns <code>reitit</code> routes</h2>
-        <p>By doing this we can hook up multiple handlers at once and also have a place to later put page specific middleware.</p>
-        <p><b><code>src/example/hello/routes.clj</code>:</b></p>
-        <code><pre>(ns example.hello.routes
+        <section id="expose-reitit-routes">
+            <h2 class="section-header"><a href="#expose-reitit-routes">Instead of exposing handler functions directly,
+                expose a function which returns <code>reitit</code> routes</a></h2>
+            <p>By doing this we can hook up multiple handlers at once and also have a place to later put page specific
+                middleware.</p>
+            <p><b><code>src/example/hello/routes.clj</code>:</b></p>
+            <code><pre>(ns example.hello.routes
   (:require [example.system :as-alias system]
             [hiccup2.core :as hiccup]
             [next.jdbc :as jdbc]))
@@ -140,10 +152,11 @@ server.</p>
 
 <span style="font-weight: bold;">(defn routes
   [system]
-  [["/" {:get {:handler (partial #'hello-handler system)}}]])</span></pre></code>
+  [["/" {:get {:handler (partial #'hello-handler system)}}]])</span></pre>
+            </code>
 
-        <p><b><code>src/example/goodbye/routes.clj</code>:</b></p>
-        <code><pre>(ns example.goodbye.routes
+            <p><b><code>src/example/goodbye/routes.clj</code>:</b></p>
+            <code><pre>(ns example.goodbye.routes
   (:require [hiccup2.core :as hiccup]))
 
 (defn goodbye-handler
@@ -158,10 +171,11 @@ server.</p>
 
 <span style="font-weight: bold;">(defn routes
   [system]
-  [["/goodbye" {:get {:handler (partial #'goodbye-handler system)}}]])</span></pre></code>
+  [["/goodbye" {:get {:handler (partial #'goodbye-handler system)}}]])</span></pre>
+            </code>
 
-        <p><b>src/example/routes.clj</b></p>
-        <code><pre>(ns example.routes
+            <p><b>src/example/routes.clj</b></p>
+            <code><pre>(ns example.routes
   (:require [clojure.tools.logging :as log]
             [example.goodbye.routes :as goodbye-routes]
             [example.hello.routes :as hello-routes]
@@ -174,7 +188,9 @@ server.</p>
    (hello-routes/routes system)
    (goodbye-routes/routes system)]</span>)
 
-...</pre></code>
+...</pre>
+            </code>
+        </section>
     </li>
 </ul>
 <section>

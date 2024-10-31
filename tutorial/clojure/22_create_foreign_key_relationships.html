@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -34,20 +34,22 @@
     <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
 </section>
 <h1>Create Foreign Key Relationships </h1>
-<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/22_create_foreign_key_relationships">(code for this section)</a></span>
+<sub><span><a
+        href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/22_create_foreign_key_relationships">(code for this section)</a></span>
 </sub>
 <p>Relational databases are at their most useful when data in one table relates to other data
     in other tables.</p>
 <p>The mechanism we use to enforce that something in <code>cave_id</code> column actually refers back to
-a row in a <code>cave</code> table is foreign keys.</p>
+    a row in a <code>cave</code> table is foreign keys.</p>
 <ul>
     <li>
-        <h2 class="section-header">Create a <code>hominid</code> table.</h2>
-        <p>This should have the standard <code>id</code>, <code>created_at</code>, <code>updated_at</code>,
-        and the trigger to keep <code>updated_at</code> updated.</p>
-        <p>In addition, we'll say that a <code>hominid</code> has a single <code>cave_id</code> where
-        they reside and a <code>name</code>.</p>
-        <code><pre>-- // create_hominid_table
+        <section id="create-a-hominid-table">
+            <h2 class="section-header"><a href="#create-a-hominid-table">Create a <code>hominid</code> table.</a></h2>
+            <p>This should have the standard <code>id</code>, <code>created_at</code>, <code>updated_at</code>,
+                and the trigger to keep <code>updated_at</code> updated.</p>
+            <p>In addition, we'll say that a <code>hominid</code> has a single <code>cave_id</code> where
+                they reside and a <code>name</code>.</p>
+            <code><pre>-- // create_hominid_table
 CREATE TABLE prehistoric.hominid (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -63,14 +65,18 @@ EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
 
 
 -- //@UNDO
-DROP TABLE prehistoric.hominid;</pre></code>
+DROP TABLE prehistoric.hominid;</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Have <code>cave_id</code> be a foreign key</h2>
-        <p>You want to write out the <code>on update restrict on delete restrict</code>.
-        It's not the default behavior but it's the least potentially problem causing.</p>
-        <code><pre>-- // create_hominid_table
+        <section id="cave-id-foreign-key">
+            <h2 class="section-header"><a href="#cave-id-foreign-key">Have <code>cave_id</code> be a foreign key</a>
+            </h2>
+            <p>You want to write out the <code>on update restrict on delete restrict</code>.
+                It's not the default behavior but it's the least potentially problem causing.</p>
+            <code><pre>-- // create_hominid_table
 CREATE TABLE prehistoric.hominid (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -87,13 +93,17 @@ FOR EACH ROW
 EXECUTE PROCEDURE prehistoric.set_current_timestamp_updated_at();
 
 -- //@UNDO
-DROP TABLE prehistoric.hominid;</pre></code>
+DROP TABLE prehistoric.hominid;</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Make indexes on your foreign keys</h2>
-        <p>I don't have hard data on this, but every time I make a foreign key relationship and don't make indexes
-        that cover the related columns I come to regret it.</p>
-        <code><pre>-- // create_hominid_table
+        <section id="make-indexes-on-your-foreign-keys">
+            <h2 class="section-header"><a href="#make-indexes-on-your-foreign-keys">Make indexes on your foreign
+                keys</a></h2>
+            <p>I don't have hard data on this, but every time I make a foreign key relationship and don't make indexes
+                that cover the related columns I come to regret it.</p>
+            <code><pre>-- // create_hominid_table
 CREATE TABLE prehistoric.hominid (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -115,7 +125,9 @@ USING btree (cave_id);</span>
 
 
 -- //@UNDO
-DROP TABLE prehistoric.hominid;</pre></code>
+DROP TABLE prehistoric.hominid;</pre>
+            </code>
+        </section>
     </li>
 </ul>
 <section>
