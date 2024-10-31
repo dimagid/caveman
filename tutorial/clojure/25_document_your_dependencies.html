@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -36,18 +36,22 @@
 <h1>Document your Dependencies </h1>
 <sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/25_document_your_dependencies">(code for this section)</a></span>
 </sub>
-<p>As your project grows and you add more and more dependencies, it can become hard to remember why you have any given dependency.
-This can lead to you having multiple ways of doing the same task or keeping a library around that you don't actually need anymore.</p>
+<p>As your project grows and you add more and more dependencies, it can become hard to remember why you have any given
+    dependency.
+    This can lead to you having multiple ways of doing the same task or keeping a library around that you don't actually
+    need anymore.</p>
 <p>One way to combat this is with comments.</p>
 <ul>
     <li>
-        <h2 class="section-header">Add comments above your dependencies in <code>deps.edn</code>.</h2>
-        <p>Exactly what comments to put is more art than science, but aiming to keep it
-        short and sweet is a decent strategy.</p>
-        <p>Some things don't deserve a special note, of course. You won't need to later figure out
-            why <code>org.clojure/clojure</code> is there.</p>
-        <p>Some things definitely do. For better or worse, we got some silly names out there.</p>
-        <code><pre>{:paths ["src"]
+        <section id="add-comments-above-your-dependencies">
+            <h2 class="section-header"><a href="#add-comments-above-your-dependencies">Add comments above your
+                dependencies in <code>deps.edn</code>.</a></h2>
+            <p>Exactly what comments to put is more art than science, but aiming to keep it
+                short and sweet is a decent strategy.</p>
+            <p>Some things don't deserve a special note, of course. You won't need to later figure out
+                why <code>org.clojure/clojure</code> is there.</p>
+            <p>Some things definitely do. For better or worse, we got some silly names out there.</p>
+            <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         <span style="font-weight: bold;">;; HTTP server</span>
         ring/ring {:mvn/version "1.13.0"}
@@ -80,7 +84,9 @@ This can lead to you having multiple ways of doing the same task or keeping a li
                               <span style="font-weight: bold;">;; Test Runner</span>
                               lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
-           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre>
+            </code>
+        </section>
     </li>
 
 </ul>

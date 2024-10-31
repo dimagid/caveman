@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -36,29 +36,36 @@
 <h1>Precompile your Routes </h1>
 <sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/26_precompile_your_routes">(code for this section)</a></span>
 </sub>
-<p>When developing code we want new or altered routes to be reflected as soon as the code for them is loaded in the REPL.
-When code is deployed it's subpar to compile a reitit router on every request.</p>
+<p>When developing code we want new or altered routes to be reflected as soon as the code for them is loaded in the
+    REPL.
+    When code is deployed it's subpar to compile a reitit router on every request.</p>
 
 <ul>
     <li>
-        <h2 class="section-header">Add an <code>ENVIRONMENT</code> variable to your <code>.env</code> file.</h2>
-        <p>For development, we will set <code>ENVIRONMENT</code> to <code>development</code>.
-            For production, <code>production</code>, etc.</p>
-        <code><pre><span style="font-weight: bold;">ENVIRONMENT=development</span>
+        <section id="add-environment-to-dotenv">
+            <h2 class="section-header"><a href="#add-environment-to-dotenv">Add an <code>ENVIRONMENT</code> variable to
+                your <code>.env</code> file.</a></h2>
+            <p>For development, we will set <code>ENVIRONMENT</code> to <code>development</code>.
+                For production, <code>production</code>, etc.</p>
+            <code><pre><span style="font-weight: bold;">ENVIRONMENT=development</span>
 POSTGRES_USERNAME=postgres
 POSTGRES_PASSWORD=postgres
-PORT=9999</pre></code>
+PORT=9999</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Add a curried overload to <code>root-handler</code></h2>
-        <p>Currying is when you take a function that takes more than one argument and turn it into a series of
-        functions that return functions which each take a single argument.</p>
-        <p>The reason we do this is so that we can either provide both the <code>system</code>
-        and <code>request</code> at the same time - in which case the routes will be compiled per-request - or
-        call it with <code>system</code> and later call the result on a <code>request</code>. In that situation
-        the compilation will have already happened.</p>
-        <code><pre>(ns example.routes
+        <section id="add-curried-overload-to-root-handler">
+            <h2 class="section-header"><a href="#add-curried-overload-to-root-handler">Add a curried overload to <code>root-handler</code></a>
+            </h2>
+            <p>Currying is when you take a function that takes more than one argument and turn it into a series of
+                functions that return functions which each take a single argument.</p>
+            <p>The reason we do this is so that we can either provide both the <code>system</code>
+                and <code>request</code> at the same time - in which case the routes will be compiled per-request - or
+                call it with <code>system</code> and later call the result on a <code>request</code>. In that situation
+                the compilation will have already happened.</p>
+            <code><pre>(ns example.routes
   (:require [clojure.tools.logging :as log]
             [example.cave.routes :as cave-routes]
             [example.goodbye.routes :as goodbye-routes]
@@ -78,16 +85,20 @@ PORT=9999</pre></code>
                    #'not-found-handler)]
      (fn [request]
        (log/info (str (:request-method request) " - " (:uri request)))
-       (handler request))))</span>)</pre></code>
+       (handler request))))</span>)</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Change <code>start-server</code> to use the two argument overload in development
-            and the curried overload when not in development.</h2>
-        <p>You can validate that this works properly by changing the <code>ENVIRONMENT</code> variable
-        and hot loading in a change to your routes. When its set to <code>development</code> that should work,
-        when it's not you need to restart your system to see changes.</p>
-        <code><pre>(ns example.system
+        <section id="change-start-server-to-use-curried-overload-in-dev">
+            <h2 class="section-header"><a href="#change-start-server-to-use-curried-overload-in-dev">Change <code>start-server</code>
+                to use the two argument overload in development
+                and the curried overload when not in development.</a></h2>
+            <p>You can validate that this works properly by changing the <code>ENVIRONMENT</code> variable
+                and hot loading in a change to your routes. When its set to <code>development</code> that should work,
+                when it's not you need to restart your system to see changes.</p>
+            <code><pre>(ns example.system
   (:require [example.jobs :as jobs]
             [example.routes :as routes]
             [next.jdbc.connection :as connection]
@@ -111,15 +122,19 @@ PORT=9999</pre></code>
       {:port  (parse-long (Dotenv/.get env "PORT"))
        :join? false}))</span>)
 
-...</pre></code>
+...</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Name the anonymous function inside of <code>root-handler</code></h2>
-        <p>When something goes wrong, a named function is easier to pick out in a stack trace than
-        one without a name. We are going to reuse the name of <code>root-handler</code>
-        because that will point you at the right place in the code, even if it looks a little redundant.</p>
-        <code><pre>(ns example.routes
+        <section id="name-that-anonymous-function">
+            <h2 class="section-header"><a href="#name-that-anonymous-function">Name the anonymous function inside of
+                <code>root-handler</code></a></h2>
+            <p>When something goes wrong, a named function is easier to pick out in a stack trace than
+                one without a name. We are going to reuse the name of <code>root-handler</code>
+                because that will point you at the right place in the code, even if it looks a little redundant.</p>
+            <code><pre>(ns example.routes
   (:require [clojure.tools.logging :as log]
             [example.cave.routes :as cave-routes]
             [example.goodbye.routes :as goodbye-routes]
@@ -141,7 +156,9 @@ PORT=9999</pre></code>
      (fn <span style="font-weight: bold;">root-handler</span> [request]
        (log/info (str (:request-method request) " - " (:uri request)))
        (handler request)))))
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
 </ul>
 <section>

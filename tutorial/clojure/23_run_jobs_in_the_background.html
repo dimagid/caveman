@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -40,9 +40,11 @@
 <p>We call these things "background jobs" for they are jobs done in the back of the round.</p>
 <ul>
     <li>
-        <h2 class="section-header">Add <code>proletarian</code> to your <code>deps.edn</code>.</h2>
-        <p>This is a library which manages pulling and executing background jobs scheduled in postgres.</p>
-        <code><pre>{:paths ["src"]
+        <section id="add-proletarian-to-your-deps-edn">
+            <h2 class="section-header"><a href="#add-proletarian-to-your-deps-edn">Add <code>proletarian</code> to your
+                <code>deps.edn</code>.</a></h2>
+            <p>This is a library which manages pulling and executing background jobs scheduled in postgres.</p>
+            <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}
         metosin/reitit-ring {:mvn/version "0.7.2"}
@@ -59,15 +61,22 @@
                  :extra-deps {nrepl/nrepl {:mvn/version "1.3.0"}
                               lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
-           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Create a migration to run all the tables required for <code>proletarian</code></h2>
-        <p>The DDL is documented <a href="https://github.com/msolli/proletarian/blob/main/database/postgresql/tables.sql">in the repo for that project</a>.
-        All we need to do is slap that in a migration.</p>
-        <p>One difference is that we want to give defaults for <code>job_id</code>, <code>queue</code>, <code>attempts</code>,
-        <code>enqueued_at</code>, and <code>process_at</code>. This will make it easier to do inserts directly in triggers.</p>
-        <code><pre>-- // add_proletarian_tables
+        <section id="create-tables-for-proletarian">
+            <h2 class="section-header"><a href="#create-tables-for-proletarian">Create a migration to run all the tables
+                required for <code>proletarian</code></a></h2>
+            <p>The DDL is documented <a
+                    href="https://github.com/msolli/proletarian/blob/main/database/postgresql/tables.sql">in the repo
+                for that project</a>.
+                All we need to do is slap that in a migration.</p>
+            <p>One difference is that we want to give defaults for <code>job_id</code>, <code>queue</code>, <code>attempts</code>,
+                <code>enqueued_at</code>, and <code>process_at</code>. This will make it easier to do inserts directly
+                in triggers.</p>
+            <code><pre>-- // add_proletarian_tables
 CREATE SCHEMA IF NOT EXISTS proletarian;
 
 CREATE TABLE IF NOT EXISTS proletarian.job (
@@ -100,18 +109,23 @@ DROP TABLE proletarian.archived_job;
 DROP TABLE proletarian.job;
 
 DROP SCHEMA proletarian;
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Make <code>src/example/jobs.clj</code> and put the following into it</h2>
-        <p>The logging code we want because, by default, the logger used by <code>proletarian</code>
-        is very noisy. You will see a log for every time it polls to see if there is a new job, which happens
-        frequently.</p>
-        <p>The handlers map we will fill in with handlers for different job types. <code>process-job</code>
-        will then delegate to that. We use this instead of <code>defmulti</code> because it's easier to reason about
-        whether a given job handler has been registered.</p>
-        <code><pre>(ns example.jobs
+        <section id="make-jobs-clj">
+            <h2 class="section-header"><a href="#make-jobs-clj">Make <code>src/example/jobs.clj</code> and put the
+                following into it</a></h2>
+            <p>The logging code we want because, by default, the logger used by <code>proletarian</code>
+                is very noisy. You will see a log for every time it polls to see if there is a new job, which happens
+                frequently.</p>
+            <p>The handlers map we will fill in with handlers for different job types. <code>process-job</code>
+                will then delegate to that. We use this instead of <code>defmulti</code> because it's easier to reason
+                about
+                whether a given job handler has been registered.</p>
+            <code><pre>(ns example.jobs
   (:require [clojure.tools.logging :as log]
             [proletarian.worker :as-alias worker]))
 
@@ -139,12 +153,16 @@ DROP SCHEMA proletarian;
   (if-let [handler (get (handlers) job-type)]
     (handler system job-type payload)
     (log/error "Unhandled Job Type" {:job-type job-type})))
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Add code to start the worker to your <code>system</code> namespace.</h2>
-        <p>This will include wiring up the custom logger from earlier.</p>
-        <code><pre>(ns example.system
+        <section id="add-code-to-start-worker-to-system-namespace">
+            <h2 class="section-header"><a href="#add-code-to-start-worker-to-system-namespace">Add code to start the
+                worker to your <code>system</code> namespace.</a></h2>
+            <p>This will include wiring up the custom logger from earlier.</p>
+            <code><pre>(ns example.system
   (:require [example.jobs :as jobs]
             [example.routes :as routes]
             [next.jdbc.connection :as connection]
@@ -207,15 +225,19 @@ DROP SCHEMA proletarian;
   [system]
   (stop-server (::server system))
   <span style="font-weight: bold;">(stop-worker (::worker system))</span>
-  (stop-db (::db system)))</pre></code>
+  (stop-db (::db system)))</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Add <code>cheshire</code> to your <code>deps.edn</code></h2>
-        <p><code>cheshire</code> lets us read and write <code>JSON</code>. We want this because
-        we want to serialize our job data as <code>JSON</code>, not <code>Transit</code>. We want <i>that</i>
-        for reasons that will become clear soon.</p>
-        <code><pre>{:paths ["src"]
+        <section id="add-cheshire-to-your-deps-edn">
+            <h2 class="section-header"><a href="#add-cheshire-to-your-deps-edn">Add <code>cheshire</code> to your <code>deps.edn</code></a>
+            </h2>
+            <p><code>cheshire</code> lets us read and write <code>JSON</code>. We want this because
+                we want to serialize our job data as <code>JSON</code>, not <code>Transit</code>. We want <i>that</i>
+                for reasons that will become clear soon.</p>
+            <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}
         metosin/reitit-ring {:mvn/version "0.7.2"}
@@ -233,11 +255,15 @@ DROP SCHEMA proletarian;
                  :extra-deps {nrepl/nrepl {:mvn/version "1.3.0"}
                               lambdaisland/kaocha {:mvn/version "1.91.1392"}}}
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
-           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Create a <code>JSON</code> serializer in <code>src/example/jobs.clj</code></h2>
-        <code><pre>(ns example.jobs
+        <section id="create-a-json-serializer-in-jobs-clj">
+            <h2 class="section-header"><a href="#create-a-json-serializer-in-jobs-clj">Create a <code>JSON</code>
+                serializer in <code>src/example/jobs.clj</code></a></h2>
+            <code><pre>(ns example.jobs
   (:require [clojure.tools.logging :as log]
             [proletarian.worker :as-alias worker]
             [proletarian.protocols :as protocols]
@@ -250,11 +276,15 @@ DROP SCHEMA proletarian;
     (decode [_ data-string]
       (cheshire/parse-string data-string keyword))))</span>
 
-...</pre></code>
+...</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Use that <code>JSON</code> serializer when making your worker.</h2>
-        <code><pre>...
+        <section id="use-that-json-serializer">
+            <h2 class="section-header"><a href="#use-that-json-serializer">Use that <code>JSON</code> serializer when
+                making your worker.</a></h2>
+            <code><pre>...
 
 (defn start-worker
   [{::keys [db] :as system}]
@@ -266,16 +296,21 @@ DROP SCHEMA proletarian;
     (worker/start! worker)
     worker))
 
-...</pre></code>
+...</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Create a database trigger to insert a job whenever an insert happens on <code>prehistoric.cave</code></h2>
-        <p>This is why we added those default values in <code>proletarian.job</code>'s DDL and why we bother
-        using a <code>JSON</code> serializer specifically.</p>
-        <p>While it is perfectly fine to enqueue jobs in code, its often more appropriate to have jobs happen in response
-        to changes in data.</p>
-        <code><pre>-- // cave insert trigger
+        <section id="create-a-database-trigger">
+            <h2 class="section-header"><a href="#create-a-database-trigger">Create a database trigger to insert a job
+                whenever an insert happens on <code>prehistoric.cave</code></a></h2>
+            <p>This is why we added those default values in <code>proletarian.job</code>'s DDL and why we bother
+                using a <code>JSON</code> serializer specifically.</p>
+            <p>While it is perfectly fine to enqueue jobs in code, its often more appropriate to have jobs happen in
+                response
+                to changes in data.</p>
+            <code><pre>-- // cave insert trigger
 CREATE OR REPLACE FUNCTION prehistoric_cave_insert_function ()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -296,13 +331,17 @@ EXECUTE PROCEDURE prehistoric_cave_insert_function();
 
 -- //@UNDO
 DROP TRIGGER prehistoric_cave_insert_trigger ON prehistoric.cave;
-DROP FUNCTION prehistoric_cave_insert_function;</pre></code>
+DROP FUNCTION prehistoric_cave_insert_function;</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Create a job handler that inserts a <code>hominid</code> whenever a cave is inserted.</h2>
-        <p>In this situation we could have just done the cascading insert in a trigger of its own. This is
-        the more generically useful approach though, so its worth showing.</p>
-        <code><pre>(ns example.cave.jobs
+        <section id="create-a-job-handler-that-inserts-a-hominid">
+            <h2 class="section-header"><a href="#create-a-job-handler-that-inserts-a-hominid">Create a job handler that
+                inserts a <code>hominid</code> whenever a cave is inserted.</a></h2>
+            <p>In this situation we could have just done the cascading insert in a trigger of its own. This is
+                the more generically useful approach though, so its worth showing.</p>
+            <code><pre>(ns example.cave.jobs
   (:require [example.system :as-alias system]
             [next.jdbc :as jdbc])
   (:import (java.util UUID)))
@@ -320,13 +359,17 @@ DROP FUNCTION prehistoric_cave_insert_function;</pre></code>
 
 (defn handlers
   []
-  {:prehistoric.cave/insert #'process-cave-insert})</pre></code>
+  {:prehistoric.cave/insert #'process-cave-insert})</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Register that handler</h2>
-        <p>Very similar to HTTP handlers, whenever you have a background job to register you manually merge it with all the
-        existing ones.</p>
-        <code><pre>(ns example.jobs
+        <section id="register-that-handler">
+            <h2 class="section-header"><a href="#register-that-handler">Register that handler</a></h2>
+            <p>Very similar to HTTP handlers, whenever you have a background job to register you manually merge it with
+                all the
+                existing ones.</p>
+            <code><pre>(ns example.jobs
   (:require [cheshire.core :as cheshire]
             [clojure.tools.logging :as log]
             <span style="font-weight: bold;">[example.cave.jobs :as cave-jobs]</span>
@@ -366,13 +409,17 @@ DROP FUNCTION prehistoric_cave_insert_function;</pre></code>
   (if-let [handler (get (handlers) job-type)]
     (handler system job-type payload)
     (log/error "Unhandled Job Type" {:job-type job-type})))
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Insert a Cave</h2>
-        <p>After all that setup, you can go to <code>/cave</code> and insert a cave. You should see logs
-        showing that the background job was picked up and run by the worker. If you look into the <code>prehistoric.hominid</code>
-        table you will see that the correct row was inserted.</p>
+        <section id="insert-a-cave">
+            <h2 class="section-header"><a href="#insert-a-cave">Insert a Cave</a></h2>
+            <p>After all that setup, you can go to <code>/cave</code> and insert a cave. You should see logs
+                showing that the background job was picked up and run by the worker. If you look into the <code>prehistoric.hominid</code>
+                table you will see that the correct row was inserted.</p>
+        </section>
     </li>
 </ul>
 <section>

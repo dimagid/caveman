@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -37,16 +37,18 @@
 <sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/27_run_tests_against_your_database">(code for this section)</a></span>
 </sub>
 <p>Testing code like <code>(+ 1 1)</code> is trivial. What you often need is to be able to test
-the code that queries and inserts data into your database. This is not quite as trivial.</p>
+    the code that queries and inserts data into your database. This is not quite as trivial.</p>
 
 <ul>
     <li>
-        <h2 class="section-header">Add <code>org.testcontainers/postgresql</code> and <code>org.mybatis/mybatis-migrations</code> to your <code>:dev</code> alias</h2>
-        <p><a href="https://testcontainers.com/">Testcontainers</a> is a set of libraries which
-        roll up all the logic needed to run things like Postgres in your tests.</p>
-        <p>We are adding MyBatis migrations here as a library so that we can get the same result as using the <code>migrate</code>
-        command.</p>
-        <code><pre>{:paths ["src"]
+        <section id="add-testcontainers-and-mybatis-to-dev-alias">
+            <h2 class="section-header"><a href="#add-testcontainers-and-mybatis-to-dev-alias">Add <code>org.testcontainers/postgresql</code>
+                and <code>org.mybatis/mybatis-migrations</code> to your <code>:dev</code> alias</a></h2>
+            <p><a href="https://testcontainers.com/">Testcontainers</a> is a set of libraries which
+                roll up all the logic needed to run things like Postgres in your tests.</p>
+            <p>We are adding MyBatis migrations here as a library so that we can get the same result as using the <code>migrate</code>
+                command.</p>
+            <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ;; HTTP server
         ring/ring {:mvn/version "1.13.0"}
@@ -85,17 +87,21 @@ the code that queries and inserts data into your database. This is not quite as 
 
 
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
-           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Create a <code>example.test-system</code> namespace and put the following in it.</h2>
-        <p>The reason we are calling it <code>test-system</code> instead of <code>test-db</code> is because
-        later on we will put helpers to start test versions of other parts of the <code>system</code>
-            we usually pass around.</p>
-        <p>The reason we don't call it <code>test-utils</code> or something generic like that is because
-        the natural tendency will be to use that as a dumping ground for all sorts of potpourri.</p>
-        <p>This code will start up a docker container running postgres in the background.</p>
-        <code><pre>(ns example.test-system
+        <section id="create-test-system">
+            <h2 class="section-header"><a href="#create-test-system">Create a <code>example.test-system</code> namespace
+                and put the following in it.</a></h2>
+            <p>The reason we are calling it <code>test-system</code> instead of <code>test-db</code> is because
+                later on we will put helpers to start test versions of other parts of the <code>system</code>
+                we usually pass around.</p>
+            <p>The reason we don't call it <code>test-utils</code> or something generic like that is because
+                the natural tendency will be to use that as a dumping ground for all sorts of potpourri.</p>
+            <p>This code will start up a docker container running postgres in the background.</p>
+            <code><pre>(ns example.test-system
   (:import (org.testcontainers.containers PostgreSQLContainer)
            (org.testcontainers.containers.wait.strategy Wait)
            (org.testcontainers.utility DockerImageName)))
@@ -109,11 +115,16 @@ the code that queries and inserts data into your database. This is not quite as 
                         (.withTag "17")))]
     (.start container)
     (.waitingFor container (Wait/forListeningPort))
-    container))</pre></code>
+    container))</pre>
+            </code>
+        </section>
     </li>
-    <li><h2 class="section-header">Connect to the test database</h2>
-    <p>You need to inspect <code>PostgreSQLContainer</code> object to get the info needed to make a <code>DataSource</code></p>
-    <code><pre>(ns example.test-system
+    <li>
+        <section id="connect-to-the-test-database">
+            <h2 class="section-header"><a href="#connect-to-the-test-database">Connect to the test database</a></h2>
+            <p>You need to inspect <code>PostgreSQLContainer</code> object to get the info needed to make a <code>DataSource</code>
+            </p>
+            <code><pre>(ns example.test-system
   <span style="font-weight: bold;">(:require [next.jdbc :as jdbc])</span>
   (:import (org.testcontainers.containers PostgreSQLContainer)
            (org.testcontainers.containers.wait.strategy Wait)
@@ -145,28 +156,39 @@ the code that queries and inserts data into your database. This is not quite as 
                       (PostgreSQLContainer/.getUsername container)
                       "&password="
                       (PostgreSQLContainer/.getPassword container))})))</span>
-</pre></code></li>
+</pre>
+            </code></section>
+    </li>
     <li>
-        <h2 class="section-header">Run your migrations against the test database.</h2>
-        <p>
-            Let's break down this code a little:
-        </p>
-        <ol>
-            <li>We run an "<code>UpOperation</code>." This is the thing that will run all our <code>SQL</code>
-            against the test database. No I don't know why the method is called <code>.operate</code>
-            and not <code>.run</code>, <code>.call</code>, <code>.execute</code>, or something else sensible.</li>
-            <li>The first argument to this operation is a "<code>DataSourceConnectionProvider</code>." Nothing magic here,
-            just forwards the database connection along.</li>
-            <li>The second argument tells the operation where to find our migration scripts. As part of this we load in
-                the properties file for our <code>development</code> environment. We do this so that
-                any settings which are important there are carried over.</li>
-            <li>Next argument is a <code>DatabaseOperationOption</code> with <code>sendFullScript</code>
-            set to <code>true</code>. Without this the migration framework will see every <code>;</code> as signifying
-            a new statement. This setting is in <code>development.properties</code> but for whatever reason
-            isn't forwarded properly without setting it explicitly.</li>
-            <li>The last <code>nil</code> argument is a place for us to customize how it prints to the console.</li>
-        </ol>
-        <code><pre>(ns example.test-system
+        <section id="run-your-migrations-against-the-test-database">
+            <h2 class="section-header"><a href="#run-your-migrations-against-the-test-database">Run your migrations
+                against the test database.</a></h2>
+            <p>
+                Let's break down this code a little:
+            </p>
+            <ol>
+                <li>We run an "<code>UpOperation</code>." This is the thing that will run all our <code>SQL</code>
+                    against the test database. No I don't know why the method is called <code>.operate</code>
+                    and not <code>.run</code>, <code>.call</code>, <code>.execute</code>, or something else sensible.
+                </li>
+                <li>The first argument to this operation is a "<code>DataSourceConnectionProvider</code>." Nothing magic
+                    here,
+                    just forwards the database connection along.
+                </li>
+                <li>The second argument tells the operation where to find our migration scripts. As part of this we load
+                    in
+                    the properties file for our <code>development</code> environment. We do this so that
+                    any settings which are important there are carried over.
+                </li>
+                <li>Next argument is a <code>DatabaseOperationOption</code> with <code>sendFullScript</code>
+                    set to <code>true</code>. Without this the migration framework will see every <code>;</code> as
+                    signifying
+                    a new statement. This setting is in <code>development.properties</code> but for whatever reason
+                    isn't forwarded properly without setting it explicitly.
+                </li>
+                <li>The last <code>nil</code> argument is a place for us to customize how it prints to the console.</li>
+            </ol>
+            <code><pre>(ns example.test-system
   (:require <span style="font-weight: bold;">[clojure.java.io :as io]</span>
             [next.jdbc :as jdbc])
   (:import <span style="font-weight: bold;">(java.util Properties)
@@ -218,12 +240,16 @@ the code that queries and inserts data into your database. This is not quite as 
                     (.load env-properties-stream)))
                 (doto (DatabaseOperationOption.)
                   (.setSendFullScript true))
-                nil))))</span></pre></code>
+                nil))))</span></pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Create a function named <code>with-test-db</code>.</h2>
-        <p>This should get a test datasource, run migrations on it, then forward that to a callback function.</p>
-        <code><pre>(ns example.test-system
+        <section id="create-with-test-db">
+            <h2 class="section-header"><a href="#create-with-test-db">Create a function named <code>with-test-db</code>.</a>
+            </h2>
+            <p>This should get a test datasource, run migrations on it, then forward that to a callback function.</p>
+            <code><pre>(ns example.test-system
   (:require [clojure.java.io :as io]
             [next.jdbc :as jdbc])
   (:import (java.util Properties)
@@ -252,13 +278,17 @@ the code that queries and inserts data into your database. This is not quite as 
   [callback]
   (let [db (get-test-db)]
     (run-migrations db)
-    (callback db)))</span></pre></code>
+    (callback db)))</span></pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Make a test that uses the database</h2>
-        <p>Counting is a kind of math, so let's add a test which verifies that <code>COUNT(*)</code>
-        functions correctly when we insert rows into <code>prehistoric.hominid</code>.</p>
-        <code><pre>(ns example.math-test
+        <section id="make-a-test-that-uses-the-database">
+            <h2 class="section-header"><a href="#make-a-test-that-uses-the-database">Make a test that uses the
+                database</a></h2>
+            <p>Counting is a kind of math, so let's add a test which verifies that <code>COUNT(*)</code>
+                functions correctly when we insert rows into <code>prehistoric.hominid</code>.</p>
+            <code><pre>(ns example.math-test
   (:require [clojure.test :as t]
             <span style="font-weight: bold;">[example.test-system :as test-system]
             [next.jdbc :as jdbc]</span>))
@@ -273,23 +303,30 @@ the code that queries and inserts data into your database. This is not quite as 
       (jdbc/execute! db ["INSERT INTO prehistoric.hominid(name) VALUES (?)" "Blingus"])
       (t/is (= (:count (jdbc/execute-one! db ["SELECT COUNT(*) as count FROM prehistoric.hominid"]))
                2)))))</span>
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Only start the test container once.</h2>
-        <p>Starting a docker image for every test is pretty wasteful. The only benefit is getting a totally clean slate,
-        but we can achieve that in a different way.</p>
-        <p>Instead of calling <code>start-pg-test-container</code> in <code>get-test-db</code>, we will call that
-            function in a <code>delay</code>. A <code>delay</code> will only run the code inside of it once its
-        dereferenced and cache the result for any subsequent calls. To be extra sure it will only run once, we'll pair it
-        with <code>defonce</code>.</p>
-        <p>
-            As part of this we will tell the JVM to close the container when it exits. If we didn't do this we would
-            end up with dangling docker containers. A shutdown hook isn't perfect - there are ways you can close the JVM
-            without it getting a chance to run - but its good enough for local development.
-        </p>
-        <code><pre>(ns example.test-system
+        <section id="only-start-testcontainer-once">
+            <h2 class="section-header"><a href="#only-start-testcontainer-once">Only start the test container once.</a>
+            </h2>
+            <p>Starting a docker image for every test is pretty wasteful. The only benefit is getting a totally clean
+                slate,
+                but we can achieve that in a different way.</p>
+            <p>Instead of calling <code>start-pg-test-container</code> in <code>get-test-db</code>, we will call that
+                function in a <code>delay</code>. A <code>delay</code> will only run the code inside of it once its
+                dereferenced and cache the result for any subsequent calls. To be extra sure it will only run once,
+                we'll pair it
+                with <code>defonce</code>.</p>
+            <p>
+                As part of this we will tell the JVM to close the container when it exits. If we didn't do this we would
+                end up with dangling docker containers. A shutdown hook isn't perfect - there are ways you can close the
+                JVM
+                without it getting a chance to run - but its good enough for local development.
+            </p>
+            <code><pre>(ns example.test-system
   (:require [clojure.java.io :as io]
             [next.jdbc :as jdbc])
   (:import (java.util Properties)
@@ -333,19 +370,26 @@ the code that queries and inserts data into your database. This is not quite as 
                      (PostgreSQLContainer/.getUsername container)
                      "&password="
                      (PostgreSQLContainer/.getPassword container))})))
-</pre></code>
+</pre>
+            </code>
+        </section>
     </li>
 
     <li>
-        <h2 class="section-header">Create a clean slate for each test</h2>
-        <p>If you were to run the <code>counting-works</code> test multiple times in the REPL, it would start to fail
-        after the first time. This is because we aren't starting a fresh container each time anymore and data from
-            previous test runs will still be around.</p>
-        <p>To deal with this we will make use of the <code>CREATE DATABASE ... TEMPLATE ...</code> feature of postgres.</p>
-        <p>For each test, we come up with a new database name. Having an <code>atom</code>
-        we just count up with is an easy way to do that. We also make sure that migrations are only
-            run on the "template database" once using a <code>delay</code>.</p>
-        <code><pre>(ns example.test-system
+        <section id="create-a-clean-slate-for-each-test">
+            <h2 class="section-header"><a href="#create-a-clean-slate-for-each-test">Create a clean slate for each
+                test</a></h2>
+            <p>If you were to run the <code>counting-works</code> test multiple times in the REPL, it would start to
+                fail
+                after the first time. This is because we aren't starting a fresh container each time anymore and data
+                from
+                previous test runs will still be around.</p>
+            <p>To deal with this we will make use of the <code>CREATE DATABASE ... TEMPLATE ...</code> feature of
+                postgres.</p>
+            <p>For each test, we come up with a new database name. Having an <code>atom</code>
+                we just count up with is an easy way to do that. We also make sure that migrations are only
+                run on the "template database" once using a <code>delay</code>.</p>
+            <code><pre>(ns example.test-system
   (:require [clojure.java.io :as io]
             [next.jdbc :as jdbc])
   (:import (java.util Properties)
@@ -407,16 +451,21 @@ the code that queries and inserts data into your database. This is not quite as 
         (callback db))
       (finally
         (jdbc/execute! db
-                       [(format "DROP DATABASE %s;" test-table-name)]))))</span>)</pre></code>
+                       [(format "DROP DATABASE %s;" test-table-name)]))))</span>)</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Mark everything but <code>with-test-db</code> as <code>^:private</code></h2>
-        <p><code>^:private</code> in Clojure isn't as strong as <code>private</code> in Java,
-        but it will suffice. The goal is just to make it clear to code using the <code>example.test-system</code>
-        namespace that <code>with-test-db</code> is the only thing that is part of its public API.</p>
-        <p>This feels extra, but test code is still code. Everything but <code>with-test-db</code>
-        is machinery you might want to revisit later.</p>
-        <code><pre>(ns example.test-system
+        <section id="mark-everything-private">
+            <h2 class="section-header"><a href="#mark-everything-private">Mark everything but <code>with-test-db</code>
+                as <code>^:private</code></a></h2>
+            <p><code>^:private</code> in Clojure isn't as strong as <code>private</code> in Java,
+                but it will suffice. The goal is just to make it clear to code using the
+                <code>example.test-system</code>
+                namespace that <code>with-test-db</code> is the only thing that is part of its public API.</p>
+            <p>This feels extra, but test code is still code. Everything but <code>with-test-db</code>
+                is machinery you might want to revisit later.</p>
+            <code><pre>(ns example.test-system
   (:require [clojure.java.io :as io]
             [next.jdbc :as jdbc])
   (:import (java.util Properties)
@@ -511,12 +560,16 @@ the code that queries and inserts data into your database. This is not quite as 
         (callback db))
       (finally
         (jdbc/execute! db
-                       [(format "DROP DATABASE %s;" test-table-name)])))))</pre></code>
+                       [(format "DROP DATABASE %s;" test-table-name)])))))</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Run your tests</h2>
-        <p>Do so first with <code>just test</code>, but after try loading the <code>example.math-test</code>
-        namespace into a REPL and running <code>(t/run-tests)</code>.</p>
+        <section id="run-your-tests">
+            <h2 class="section-header"><a href="#run-your-tests">Run your tests</a></h2>
+            <p>Do so first with <code>just test</code>, but after try loading the <code>example.math-test</code>
+                namespace into a REPL and running <code>(t/run-tests)</code>.</p>
+        </section>
     </li>
 </ul>
 <section>
