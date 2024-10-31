@@ -67,13 +67,13 @@
 (defn with-test-db
   [callback]
   @migrations-delay
-  (let [test-table-name (str "test_" (swap! test-counter inc))
-        container       @pg-test-container-delay
-        db              (get-test-db)]
+  (let [test-database-name (str "test_" (swap! test-counter inc))
+        container          @pg-test-container-delay
+        db                 (get-test-db)]
     (jdbc/execute!
      db
      [(format "CREATE DATABASE %s TEMPLATE %s;"
-              test-table-name
+              test-database-name
               (PostgreSQLContainer/.getDatabaseName container))])
 
     (try
@@ -85,7 +85,7 @@
                                 (PostgreSQLContainer/.getMappedPort container
                                                                     PostgreSQLContainer/POSTGRESQL_PORT)
                                 "/"
-                                test-table-name
+                                test-database-name
                                 "?user="
                                 (PostgreSQLContainer/.getUsername container)
                                 "&password="
@@ -93,4 +93,4 @@
         (callback db))
       (finally
         (jdbc/execute! db
-                       [(format "DROP DATABASE %s;" test-table-name)])))))
+                       [(format "DROP DATABASE %s;" test-database-name)])))))
