@@ -1,7 +1,8 @@
 (ns user
   (:require
-   [example.system :as system]
    [clojure.pprint :as pp]
+   [example.system :as system]
+   [honey.sql :as sql]
    [next.jdbc :as jdbc]))
 
 (def system nil)
@@ -39,9 +40,21 @@
   []
   (jdbc/execute! (db) ["SELECT * FROM prehistoric.cave"]))
 
+(defn get-cave-table-honey
+  []
+  (jdbc/execute! (db)
+                 (sql/format {:select [:*]
+                              :from [:prehistoric.cave]})))
+
 (defn get-cave-descriptions
   []
   (jdbc/execute! (db) ["SELECT description FROM prehistoric.cave"]))
+
+(defn get-cave-descriptions-honey
+  []
+  (jdbc/execute! (db)
+                 (sql/format {:select [:description]
+                              :from [:prehistoric.cave]})))
 
 (defn get-cave-descriptions-only
   []
@@ -63,13 +76,16 @@
 
   (restart-system!)
 
-  (pp/pprint (get-cave-descriptions))
+  (get-cave-descriptions)
+
+  (get-cave-descriptions-honey)
 
   (get-cave-descriptions-only)
-  ;; => ("Cragly" "Large" "Mammoth" "Camuy" "Kuzgun" "Guácharo")
 
   (pp/pprint (get-hominids-table))
 
   (pp/print-table (get-cave-table))
+
+  (pp/print-table (get-cave-table-honey))
 
   #_())

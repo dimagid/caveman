@@ -1,5 +1,6 @@
 (ns example.cave.jobs
   (:require [example.system :as-alias system]
+            [honey.sql :as sql]
             [next.jdbc :as jdbc])
   (:import (java.util UUID)))
 
@@ -9,10 +10,10 @@
   [{::system/keys [db]} _job-type payload]
   (jdbc/execute!
    db
-   ["INSERT INTO prehistoric.hominid(name, cave_id)
-      VALUES (?, ?)"
-    "Grunk"
-    (UUID/fromString (:id payload))]))
+   (sql/format
+    {:insert-into :prehistoric/hominid
+     :values [{:name "Grunk"
+               :cave_id (UUID/fromString (:id payload))}]})))
 
 (defn handlers
   []
