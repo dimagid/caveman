@@ -1,0 +1,156 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
+</section>
+<h1>Share HTML Across Pages </h1>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/29_share_html_across_pages">(code for this section)</a></span>
+</sub>
+<p>Shared code is a double-edged sword.</p>
+<p>On the one hand, you only needed to write it once. On the other, it can be hard to change without considering
+all the places that use that code.</p>
+<p>As such, while the rest of this section is dedicated to sharing code - specifically the HTML boilerplate
+that most pages on a site inherit - don't take it as tacit permission to always make things into shared components.
+    Use your best judgement.</p>
+<ul>
+    <li>
+        <section id="create-page-html-core-clj">
+            <h2 class="section-header">
+                <a href="#create-page-html-core-clj">Create <code>src/example/page_html/core.clj</code> and put the following into it</a>
+            </h2>
+            <p>We put the <code>_html</code> suffix to distinguish it from our namespaces that correspond more to pages
+                and logical features.</p>
+            <p>The reason for using <code>page_html/core.clj</code> instead of <code>page_html.clj</code>
+            is that</p>
+            <ol>
+                <li>Visual components tend to accrue multiple files, like CSS, and keeping that in the same folder
+                as the specification of the HTML is easier to manage in most editors than a split folder.</li>
+                <li><code>core.clj</code> is Clojure's cultural equivalent of an <code>index.js</code>
+                file. You can expect for folks to use <code>:as</code> to remove it from the name in other namespaces.</li>
+            </ol>
+            <code><pre>(ns example.page-html.core)
+
+(defn view [& {:keys [body]}]
+  [:html
+   [:head]
+   [:body
+    body]])</pre></code>
+        </section>
+        <section id="refactor-example-hello-routes">
+            <h2 class="section-header"><a href="#refactor-example-hello-routes">Refactor <code>example.hello.routes</code> to use the page component.</a></h2>
+            <code><pre>(ns example.hello.routes
+  (:require <span style="font-weight: bold;">[example.page-html.core :as page-html]</span>
+            [example.system :as-alias system]
+            [hiccup2.core :as hiccup]
+            [next.jdbc :as jdbc]))
+
+(defn hello-handler
+  [{::system/keys [db]} _request]
+  (let [{:keys [planet]} (jdbc/execute-one!
+                          db
+                          ["SELECT 'earth' as planet"])]
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (str
+            (hiccup/html
+             <span style="font-weight: bold;">(page-html/view
+              :body [:h1 (str "Hello, " planet)])</span>))}))
+
+(defn routes
+  [system]
+  [["/" {:get {:handler (partial #'hello-handler system)}}]])</pre></code>
+        </section>
+        <section id="do-the-same-for-example-goodbye-routes">
+            <h2 class="section-header"><a href="#do-the-same-for-example-goodbye-routes">Do the same for <code>example.goodbye.routes</code></a></h2>
+            <code><pre>(ns example.goodbye.routes
+  (:require <span style="font-weight: bold;">[example.page-html.core :as page-html]</span>
+            [hiccup2.core :as hiccup]))
+
+(defn goodbye-handler
+  [_system _request]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str
+          (hiccup/html
+           <span style="font-weight: bold;">(page-html/view :body [:h1 "Goodbye, world"])</span>))})
+
+(defn routes
+  [system]
+  [["/goodbye" {:get {:handler (partial #'goodbye-handler system)}}]])</pre></code>
+        </section>
+        <section id="add-meta-tags">
+            <h2 class="section-header"><a href="#add-meta-tags">Add <code>meta</code> tags to the head of the page HTML.</a></h2>
+            <p>This is the benefit of the shared html. We can make changes in one place that will be reflected everywhere.</p>
+            <p>The <code>viewport</code> meta tag is documented <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag">HERE</a>.</p>
+            <code><pre>(ns example.page-html.core)
+
+(defn view [& {:keys [body]}]
+  [:html
+   [:head
+    <span style="font-weight: bold;">[:meta {:name "viewport"
+            :content "width=device-width, initial-scale=1.0"}]</span>]
+   [:body
+    body]])</pre></code>
+        </section>
+        <section id="add-optional-title">
+            <h2 class="section-header"><a href="#add-optional-title">Add an optional <code>:title</code> argument to <code>example.page-html.core/view</code></a></h2>
+            <p>HTML producing functions tend to grow optional arguments. I think its worth demonstrating how you would go about adding one.</p>
+            <code><pre>(ns example.page-html.core)
+
+(defn view [& {:keys [body <span style="font-weight: bold;">title</span>]
+               <span style="font-weight: bold;">:or {title "The Website"}</span>}]
+  [:html
+   [:head
+    <span style="font-weight: bold;">[:title title]</span>
+    [:meta {:name "viewport"
+            :content "width=device-width, initial-scale=1.0"}]]
+   [:body
+    body]])</pre></code>
+        </section>
+    </li>
+
+</ul>
+
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/28_check_for_outdated_dependencies.html"
+            >&larr; Check for Outdated Dependencies </a
+            >
+        </h1>
+    </div>
+</section>
+
+
+</body>
+</html>
