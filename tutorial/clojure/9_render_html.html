@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -40,13 +40,15 @@
     responses.</p>
 <ul>
     <li>
-        <h2 class="section-header">Add <code>hiccup</code> to your deps.edn</h2>
-        <p>This is a library which takes data structures and produces HTML.</p>
-        <p>The upside to using something like this to produce HTML is that you can have
-        your HTML embedded directly into the code without a separate templating language.</p>
-        <p>The downside is that your HTML won't be already in HTML form, which precludes usage
-        of some tooling and people.</p>
-        <code>
+        <section id="add-hiccup-to-your-deps-edn">
+            <h2 class="section-header"><a href="#add-hiccup-to-your-deps-edn">Add <code>hiccup</code> to your
+                deps.edn</a></h2>
+            <p>This is a library which takes data structures and produces HTML.</p>
+            <p>The upside to using something like this to produce HTML is that you can have
+                your HTML embedded directly into the code without a separate templating language.</p>
+            <p>The downside is that your HTML won't be already in HTML form, which precludes usage
+                of some tooling and people.</p>
+            <code>
             <pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}
@@ -59,15 +61,19 @@
              :extra-deps
               {nrepl/nrepl {:mvn/version "1.3.0"}}}
            :dev {:extra-paths ["dev"]}}}</pre>
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Render HTML in your handlers</h2>
-        <p>It's important to only use the <code>hiccup2.core</code> namespace. The <code>hiccup.core</code>
-        one has some intrinsic problems you don't want to deal with.</p>
-        <p>Similarly to <code>reitit</code> routes, the input here is a data structure. There are tools for converting HTML
-        snippets you want to use automatically into this hiccup format. Some are documented <a href="https://github.com/weavejester/hiccup/wiki/Converting-html-to-hiccup">HERE</a>.</p>
-        <code><pre>(ns example.routes
+        <section id="render-html-in-your-handlers">
+            <h2 class="section-header"><a href="#render-html-in-your-handlers">Render HTML in your handlers</a></h2>
+            <p>It's important to only use the <code>hiccup2.core</code> namespace. The <code>hiccup.core</code>
+                one has some intrinsic problems you don't want to deal with.</p>
+            <p>Similarly to <code>reitit</code> routes, the input here is a data structure. There are tools for
+                converting HTML
+                snippets you want to use automatically into this hiccup format. Some are documented <a
+                        href="https://github.com/weavejester/hiccup/wiki/Converting-html-to-hiccup">HERE</a>.</p>
+            <code><pre>(ns example.routes
   (:require [reitit.ring :as reitit-ring]
             [clojure.tools.logging :as log]
             <span style="font-weight: bold;">[hiccup2.core :as hiccup]</span>))
@@ -114,7 +120,10 @@
                   (reitit-ring/router
                     (routes system))
                   #'not-found-handler)]
-    (handler request)))</pre></code>
+    (handler request)))</pre>
+            </code>
+
+        </section>
     </li>
 </ul>
 <section>

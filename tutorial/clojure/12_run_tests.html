@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,11 +41,13 @@
     needed fights are had.</p>
 <ul>
     <li>
-        <h2 class="section-header">Collapse your <code>:dev</code> and <code>:nREPL</code> aliases into one.</h2>
-        <p>There would be many similarities between <code>:dev</code>, <code>:nREPL</code>,
-        and a hypothetical <code>:test</code> alias. Because we aren't relying on <code>:main-opts</code>
-        there isn't much downside to just using one <code>:dev</code> alias.</p>
-        <code><pre>{:paths ["src"]
+        <section id="collapse-dev-and-nrepl">
+            <h2 class="section-header"><a href="#collapse-dev-and-nrepl">Collapse your <code>:dev</code> and <code>:nREPL</code>
+                aliases into one.</a></h2>
+            <p>There would be many similarities between <code>:dev</code>, <code>:nREPL</code>,
+                and a hypothetical <code>:test</code> alias. Because we aren't relying on <code>:main-opts</code>
+                there isn't much downside to just using one <code>:dev</code> alias.</p>
+            <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}
         metosin/reitit-ring {:mvn/version "0.7.2"}
@@ -55,10 +57,11 @@
  :aliases {<span style="font-weight: bold;">:dev {:extra-paths ["dev"]
                  :extra-deps {nrepl/nrepl {:mvn/version "1.3.0"}}}</span>
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
-           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre>
+            </code>
 
-        <p>This does mean you will need to update how <code>just nrepl</code> functions slightly.</p>
-        <code><pre>help:
+            <p>This does mean you will need to update how <code>just nrepl</code> functions slightly.</p>
+            <code><pre>help:
     just --list
 
 run:
@@ -67,12 +70,17 @@ run:
 <span style="font-weight: bold;">nrepl:
     clojure -M:dev -m nrepl.cmdline</span>
 
-...</pre></code>
+...</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Add <code>kaocha</code> and a new <code>test</code> folder to your <code>:dev</code> alias</h2>
-        <p>Kaocha is a test runner. It runs your tests. The <code>test</code> folder is to have a place to write those tests.</p>
-        <code><pre>{:paths ["src"]
+        <section id="add-koacha-and-a-new-test-folder">
+            <h2 class="section-header"><a href="#add-koacha-and-a-new-test-folder">Add <code>kaocha</code> and a new
+                <code>test</code> folder to your <code>:dev</code> alias</a></h2>
+            <p>Kaocha is a test runner. It runs your tests. The <code>test</code> folder is to have a place to write
+                those tests.</p>
+            <code><pre>{:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ring/ring {:mvn/version "1.13.0"}
         metosin/reitit-ring {:mvn/version "0.7.2"}
@@ -83,21 +91,28 @@ run:
                  :extra-deps {nrepl/nrepl {:mvn/version "1.3.0"}
                               <span style="font-weight: bold;">lambdaisland/kaocha {:mvn/version "1.91.1392"}</span>}}
            :format {:deps {dev.weavejester/cljfmt {:mvn/version "0.13.0"}}}
-           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre></code>
+           :lint   {:deps {clj-kondo/clj-kondo {:mvn/version "2024.09.27"}}}}}</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Put the following in <code>test/example/math_test.clj</code></h2>
-        <code>
+        <section id="put-the-following-in-math-test-clj">
+            <h2 class="section-header"><a href="#put-the-following-in-math-test-clj">Put the following in <code>test/example/math_test.clj</code></a>
+            </h2>
+            <code>
             <pre>(ns example.math-test
   (:require [clojure.test :as t]))
 
 (t/deftest one-plus-one
   (t/is (= (+ 1 1) 3) "One plus one equals 3!"))</pre>
-        </code>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Add a <code>test</code> recipe to your <code>Justfile</code></h2>
-        <code><pre>help:
+        <section id="add-a-test-recipe">
+            <h2 class="section-header"><a href="#add-a-test-recipe">Add a <code>test</code> recipe to your <code>Justfile</code></a>
+            </h2>
+            <code><pre>help:
     just --list
 
 run:
@@ -116,23 +131,34 @@ lint:
     clojure -M:lint -m clj-kondo.main --lint .
 
 <span style="font-weight: bold;">test:
-    clojure -M:dev -m kaocha.runner</span></pre></code>
+    clojure -M:dev -m kaocha.runner</span></pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Run <code>just test</code></h2>
-        <p>Because 1 + 1 does not equal 3, you should see a test failure reported.</p>
+        <section id="run-just-test">
+            <h2 class="section-header"><a href="#run-just-test">Run <code>just test</code></a></h2>
+            <p>Because 1 + 1 does not equal 3, you should see a test failure reported.</p>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Fix your tests and run <code>just test</code> again</h2>
-        <code><pre>(ns example.math-test
+        <section id="fix-your-tests">
+            <h2 class="section-header"><a href="#fix-your-tests">Fix your tests and run <code>just test</code> again</a>
+            </h2>
+            <code><pre>(ns example.math-test
   (:require [clojure.test :as t]))
 
 (t/deftest one-plus-one
-  (t/is (= (+ 1 1) <span style="font-weight: bold;">2</span>) "One plus one equals <span style="font-weight: bold;">2</span>!"))</pre></code>
+  (t/is (= (+ 1 1) <span style="font-weight: bold;">2</span>) "One plus one equals <span
+                        style="font-weight: bold;">2</span>!"))</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Add <code>test</code> to the list of directories to automatically format.</h2>
-        <code><pre>help:
+        <section id="add-test-to-formatted-directories">
+            <h2 class="section-header"><a href="#add-test-to-formatted-directories">Add <code>test</code> to the list of
+                directories to automatically format.</a></h2>
+            <code><pre>help:
     just --list
 
 run:
@@ -151,7 +177,9 @@ lint:
     clojure -M:lint -m clj-kondo.main --lint .
 
 test:
-    clojure -M:dev -m kaocha.runner</pre></code>
+    clojure -M:dev -m kaocha.runner</pre>
+            </code>
+        </section>
     </li>
 </ul>
 <section>

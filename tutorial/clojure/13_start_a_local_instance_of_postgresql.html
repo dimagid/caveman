@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -34,18 +34,24 @@
     <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
 </section>
 <h1>Start a Local Instance of Postgresql </h1>
-<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/13_start_a_local_instance_of_postgresql">(code for this section)</a></span>
+<sub><span><a
+        href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/13_start_a_local_instance_of_postgresql">(code for this section)</a></span>
 </sub>
-<p>For a majority of applications you should <a href="https://mccue.dev/pages/8-16-24-just-use-postgres">just use Postgresql</a>. I know I'm writing for
-an audience that loves their Datomics and XTDBs, but the rest of this is focused on the Postgresql life path.</p>
+<p>For a majority of applications you should <a href="https://mccue.dev/pages/8-16-24-just-use-postgres">just use
+    Postgresql</a>. I know I'm writing for
+    an audience that loves their Datomics and XTDBs, but the rest of this is focused on the Postgresql life path.</p>
 <p>If you get to the end I'm sure it would be clear how you would slot in your alternative database of choice.</p>
 <ul>
     <li>
-        <h2 class="section-header">Make a <code>docker-compose.yaml</code> file and put the following into it.</h2>
-        <p>This will let us start an instance of Postgres on the correct version for everyone working on the code. In addition
-        it can be helpful when there are changes that require a wipe or a restart to have all your data be in a project-local folder like
-        <code>./data/db</code>.</p>
-        <code><pre>services:
+        <section id="make-a-docker-compose-yaml">
+            <h2 class="section-header"><a href="#make-a-docker-compose-yaml">Make a <code>docker-compose.yaml</code>
+                file and put the following into it.</a></h2>
+            <p>This will let us start an instance of Postgres on the correct version for everyone working on the code.
+                In addition,
+                it can be helpful when there are changes that require a wipe or a restart to have all your data be in a
+                project-local folder like
+                <code>./data/db</code>.</p>
+            <code><pre>services:
   postgres:
     image: postgres:17
     restart: unless-stopped
@@ -60,28 +66,54 @@ an audience that loves their Datomics and XTDBs, but the rest of this is focused
     volumes:
       - ./data/db:/var/lib/postgresql/data
     ports:
-      - '5432:5432'</pre></code>
+      - '5432:5432'</pre>
+            </code>
+        </section>
+    </li>
+    <li>
+        <section id="make-a-dotenv-file">
 
+            <h2 class="section-header"><a href="#make-a-dotenv-file">Make a file named <code>.env</code> and put the
+                following into it.</a></h2>
+            <code>
+                <pre>POSTGRES_PASSWORD=postgres</pre>
+            </code>
+
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Make a file named <code>.env</code> and put the following into it.</h2>
-        <code><pre>POSTGRES_PASSWORD=postgres</pre></code>
-    </li>
-    <li>
-        <h2 class="section-header">Add <code>.env</code> to a <code>.gitignore</code> file.</h2>
-        <p>The rest of will try to not be <code>git</code> specific, but this one in particular is worth calling out. Accidentally
-        commiting a <code>.env</code> file is one of those things that's easy to do by mistake if you are not careful. And its
-        important not to, because you can leak API keys and similar that way.</p>
-        <p>Also, while we're at it, add <code>.cpcache</code>, <code>.clj-kondo/.cache</code>, and <code>data</code> to your <code>.gitignore</code>. <code>.cpcache</code> folder
-        comes from the clojure CLI tools and isn't usefully sharable between machines. <code>.clj-kondo/.cache</code> is similar temporary files from the linter. <code>data</code> is where all the data from the local postgres instance will go.</p>
-        <code><pre>.env
+        <section id="add-dotenv-to-your-gitignore">
+            <h2 class="section-header"><a href="#add-dotenv-to-your-gitignore">Add <code>.env</code> to a <code>.gitignore</code>
+                file.</a></h2>
+            <p>The rest of will try to not be <code>git</code> specific, but this one in particular is worth calling
+                out.
+                Accidentally
+                commiting a <code>.env</code> file is one of those things that's easy to do by mistake if you are not
+                careful. And its
+                important not to, because you can leak API keys and similar that way.</p>
+            <p>Also, while we're at it, add <code>.cpcache</code>, <code>.clj-kondo/.cache</code>, and <code>data</code>
+                to
+                your <code>.gitignore</code>. <code>.cpcache</code> folder
+                comes from the clojure CLI tools and isn't usefully sharable between machines.
+                <code>.clj-kondo/.cache</code> is similar temporary files from the linter. <code>data</code> is where
+                all
+                the data from the local postgres instance will go.</p>
+            <code><pre>.env
 .cpcache
 .clj-kondo/.cache
-data</pre></code>
+data</pre>
+            </code>
+        </section>
     </li>
     <li>
-        <h2 class="section-header">Run <code>docker compose up -d</code></h2>
-        <p>This should download start up postgres in the background.</p>
+        <section id="run-docker-compose-up">
+            <h2 class="section-header"><a href="#run-docker-compose-up">Run <code>docker compose up -d</code></a></h2>
+            <p>This should download start up postgres in the background.</p>
+            <p>Note that, as of the time of writing, the version of docker where you run <code>docker compose</code>
+                is relatively new. Older docker versions will want you to run <code>docker-compose</code>. That is, one
+                command with the hyphen.
+                Make sure you have a new enough version of docker.</p>
+        </section>
     </li>
 </ul>
 <section>
