@@ -18,11 +18,8 @@
   lint {:doc "Run linter clj-kondo to detect code issues"
         :task (clojure "-M:lint -m clj-kondo.main --lint .")}
 
-  kaocha {:doc "Run tests with kaocha"
-          :task (clojure "-M:kaocha")}
-
-  test {:doc "Run tests"
-        :task (apply clojure "-M:test" *command-line-args*)}
+  test {:doc "Run tests with kaocha"
+          :task (clojure "-M:dev -m kaocha.runner")}
 
   uber {:doc "Build uberjar"
         :task (clojure "-T:build uber")}}}

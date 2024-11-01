@@ -23,5 +23,5 @@ lint:
     clojure -M:lint -m clj-kondo.main --lint .
 
 # Run tests with kaocha
-kaocha:
-    clojure -M:kaocha
+test:
+    clojure -M:dev -m kaocha.runner
