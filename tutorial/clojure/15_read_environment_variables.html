@@ -166,7 +166,7 @@ PORT=9999</pre>
   [{::keys [env] :as system}]
   (jetty/run-jetty
    (partial #'routes/root-handler system)
-   {:port  <span style="font-weight: bold;">(parse-long (Dotenv/.get env "PORT"))</span>
+   {:port  <span style="font-weight: bold;">(Long/parseLong (Dotenv/.get env "PORT"))</span>
     :join? false}))
 
 (defn stop-server

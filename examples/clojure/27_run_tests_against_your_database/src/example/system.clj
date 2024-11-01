@@ -47,7 +47,7 @@
                   (routes/root-handler system))]
     (jetty/run-jetty
      handler
-     {:port  (parse-long (Dotenv/.get env "PORT"))
+     {:port  (Long/parseLong (Dotenv/.get env "PORT"))
       :join? false})))
 
 (defn stop-server
