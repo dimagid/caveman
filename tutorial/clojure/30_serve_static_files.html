@@ -1,0 +1,139 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
+</section>
+<h1>Serve Static Files </h1>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/30_serve_static_files">(code for this section)</a></span>
+</sub>
+
+<ul>
+    <li>
+        <section id="add-res-to-list-of-paths">
+            <h2 class="section-header"><a href="#add-res-to-list-of-paths">Add "res" to the list of paths in the <code>deps.edn</code></a></h2>
+            <p><code>res</code> in this context is short for <code>resources</code>. I like using <code>res</code>
+            because it has the same number of letters as <code>src</code> and <code>dev</code>. That's just personal
+            preference though.</p>
+            <p>The reason we add a new path instead of putting static resources in <code>src</code> - which would work -
+            is partially preference, but also partially because at a certain point you might want to ahead of time compile
+            your Clojure code. In that context you would also want to copy over your static resources. It's just a smidge
+            easier to copy a folder than it is to copy all files which don't have a specific file extension.</p>
+            <code><pre>{:paths ["src" <span style="font-weight: bold;">"res"</span>]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        ...}}</pre></code>
+        </section>
+    </li>
+    <li>
+        <section id="save-favicon-ico">
+            <h2 class="section-header"><a href="#save-favicon-ico">Put the following into <code>res/favicon.ico</code>.</a></h2>
+            <p>Save <a href="30/favicon.ico">favicon.ico</a> and put it in the <code>res</code> folder. If you didn't
+            make a <code>res</code> folder on the previous step, do so now.</p>
+        </section>
+    </li>
+    <li>
+        <section id="create-example-static-routes-clj">
+            <h2 class="section-header">
+                <a href="#create-example-static-routes-clj">Create <code>src/example/static/routes.clj</code> for static routes</a>
+            </h2>
+            <p>This code, as written, only has a route handler for <code>/favicon.ico</code>.</p>
+            <p>It is quite a bit more popular to instead have one handler with a wildcard parameter. Something like <code>public/*</code>
+            that will look up any file that is under some <code>public</code> folder.</p>
+            <p>This is valid, and one function which does that is <code>reitit.ring/create-resource-handler</code>. If you end up finding this approach onerous,
+            use that.</p>
+            <p>The pros of serving things with explicit handlers are:</p>
+            <ul>
+                <li>You can co-locate the handlers for serving static resources with the pages that need them. We aren't doing
+                this for <code>favicon.ico</code>, but you can maybe imagine a page that has a logo specific for that page.</li>
+                <li>It's much more straight forward to serve things under a root path. If you have a generic resource handler
+                it's going take some finagling to make <code>/*</code> work out.</li>
+                <li>You aren't at risk of encountering <a href="https://spring.io/security/cve-2024-38816">path traversal vulnerabilities.</a></li>
+            </ul>
+            <p>The cons are, I think, a bit more obvious.</p>
+            <code><pre>(ns example.static.routes
+  (:require [ring.util.response :as response]))
+
+(defn routes
+  [_]
+  [["/favicon.ico" (fn [& _] (response/resource-response "/favicon.ico"))]])</pre></code>
+        </section>
+    </li>
+    <li>
+        <section id="register-static-routes">
+            <h2 class="section-header">
+                <a href="#register-static-routes">Register static routes</a>
+            </h2>
+            <code><pre>(ns example.routes
+  (:require [clojure.tools.logging :as log]
+            [example.cave.routes :as cave-routes]
+            [example.goodbye.routes :as goodbye-routes]
+            [example.hello.routes :as hello-routes]
+            <span style="font-weight: bold;">[example.static.routes :as static-routes]</span>
+            [example.system :as-alias system]
+            [hiccup2.core :as hiccup]
+            [reitit.ring :as reitit-ring]))
+
+(defn routes
+  [system]
+  [""
+   <span style="font-weight: bold;">(static-routes/routes system)</span>
+   (cave-routes/routes system)
+   (hello-routes/routes system)
+   (goodbye-routes/routes system)])
+
+...</pre></code>
+        </section>
+    </li>
+
+    <li>
+        <section id="open-your-browser">
+            <h2><a href="#open-your-browser">Open your web browser and go to <code>http://localhost:9999</code></a></h2>
+            <p>You should see the tiny favicon on the browser tab. This means that we successfully served up the file.</p>
+            <p>Make sure to "hard refresh" if it doesn't work right away. The browser likes to cache things.</p>
+        </section>
+    </li>
+
+</ul>
+
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/29_share_html_across_pages.html"
+            >&larr; Share HTML Across Pages </a
+            >
+        </h1>
+    </div>
+</section>
+
+
+</body>
+</html>
