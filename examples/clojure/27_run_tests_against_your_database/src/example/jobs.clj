@@ -37,4 +37,4 @@
   [system job-type payload]
   (if-let [handler (get (handlers) job-type)]
     (handler system job-type payload)
-    (log/error "Unhandled Job Type" {:job-type job-type})))
+    (throw (ex-info "Unhandled Job Type" {:job-type job-type}))))

@@ -152,7 +152,7 @@ DROP SCHEMA proletarian;
   [system job-type payload]
   (if-let [handler (get (handlers) job-type)]
     (handler system job-type payload)
-    (log/error "Unhandled Job Type" {:job-type job-type})))
+    (throw (ex-info "Unhandled Job Type" {:job-type job-type}))))
 </pre>
             </code>
         </section>
@@ -408,7 +408,7 @@ DROP FUNCTION prehistoric_cave_insert_function;</pre>
   [system job-type payload]
   (if-let [handler (get (handlers) job-type)]
     (handler system job-type payload)
-    (log/error "Unhandled Job Type" {:job-type job-type})))
+    (throw (ex-info "Unhandled Job Type" {:job-type job-type}))))
 </pre>
             </code>
         </section>
