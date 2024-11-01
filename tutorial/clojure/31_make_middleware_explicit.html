@@ -1,0 +1,257 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        .section-header a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+        .section-header a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body style="max-width: 800px">
+<section>
+    <a href="/"><img src="/caveman.jpg" width="100px" alt="A cartoon caveman"/></a>
+</section>
+<h1>Make Middleware Explicit </h1>
+<sub><span><a href="https://github.com/bowbahdoe/caveman/tree/main/examples/clojure/31_make_middleware_explicit">(code for this section)</a></span>
+</sub>
+
+<p>At this point, <code>standard-html-middleware</code> just uses <code>ring.middleware.defaults/middleware-defaults</code>.
+This is fine right up until we want to add our own middleware or understand what middleware is in place and what it does.
+That is something we will want when adding user auth later.</p>
+<p>Which means there would be value in moving away from <code>ring.middleware.defaults/middleware-defaults</code>
+and explicitly writing out the middleware it implies.</p>
+
+<ul>
+    <li>
+        <section id="turn-middleware-defaults-explicit">
+            <h2 class="section-header"><a href="#turn-middleware-defaults-explicit">
+                Turn <code>middleware-defaults</code> into an explicit vector of middlewares</a>
+            </h2>
+            <p>Figuring out what you actually get from <code>site-defaults</code> is a bit of a detective game. You need to look
+                at the options set on <code>site-defaults</code> and trace through <code>middleware-defaults</code>
+                to figure out what is going to be applied.</p>
+            <p>The following code is the result of that investigation, sans a few middleware whose purpose is just to serve over static files.
+            For now, we are going to rely on explicit entries in <code>example.static.routes</code> for that.</p>
+            <code><pre>(ns example.middleware
+  (:require
+   <span style="font-weight: bold;">[ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
+   [ring.middleware.content-type :refer [wrap-content-type]]
+   [ring.middleware.cookies :refer [wrap-cookies]]
+   [ring.middleware.default-charset :refer [wrap-default-charset]]
+   [ring.middleware.flash :refer [wrap-flash]]
+   [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+   [ring.middleware.multipart-params :refer [wrap-multipart-params]]
+   [ring.middleware.nested-params :refer [wrap-nested-params]]
+   [ring.middleware.not-modified :refer [wrap-not-modified]]
+   [ring.middleware.params :refer [wrap-params]]
+   [ring.middleware.session :refer [wrap-session]]
+   [ring.middleware.session.cookie :refer [cookie-store]]
+   [ring.middleware.x-headers :as x]</span>))
+
+<span style="font-weight: bold;">(def default-session-store (cookie-store))</span>
+
+(defn standard-html-route-middleware
+  [_system]
+  [<span style="font-weight: bold;">#(x/wrap-content-type-options % :nosniff)
+   #(x/wrap-frame-options % :sameorigin)
+   wrap-not-modified
+   #(wrap-default-charset % "utf-8")
+   wrap-content-type
+   wrap-cookies
+   wrap-params
+   wrap-multipart-params
+   wrap-nested-params
+   wrap-keyword-params
+   #(wrap-session % {:cookie-attrs {:http-only true}
+                     :store default-session-store})
+   wrap-flash
+   wrap-anti-forgery</span>])</pre></code>
+        </section>
+    </li>
+    <li>
+        <section id="move-cookie-store-to-the-system">
+            <h2 class="section-header"><a href="#move-cookie-store-to-the-system">Move <code>cookie-store</code> to the <code>system</code></a></h2>
+            <p>You may have noticed that when we broke out the middleware there was a top-level <code>cookie-store</code>
+            object that popped up. This is a stateful object, so it should live in and come from the <code>system</code>.</p>
+            <code><pre>(ns example.system
+  (:require [example.jobs :as jobs]
+            [example.routes :as routes]
+            [next.jdbc.connection :as connection]
+            [proletarian.worker :as worker]
+            [ring.adapter.jetty :as jetty]
+            <span style="font-weight: bold;">[ring.middleware.session.cookie :as session-cookie]</span>)
+  (:import (com.zaxxer.hikari HikariDataSource)
+           (io.github.cdimascio.dotenv Dotenv)
+           (org.eclipse.jetty.server Server)))
+
+(set! *warn-on-reflection* true)
+
+(defn start-env
+  []
+  (Dotenv/load))
+
+<span style="font-weight: bold;">(defn start-cookie-store
+  []
+  (session-cookie/cookie-store))</span>
+
+...
+
+(defn start-system
+  []
+  (let [system-so-far {::env (start-env)}
+        <span style="font-weight: bold;">system-so-far (merge system-so-far {::cookie-store (start-cookie-store)})</span>
+        system-so-far (merge system-so-far {::db (start-db system-so-far)})
+        system-so-far (merge system-so-far {::worker (start-worker system-so-far)})]
+    (merge system-so-far {::server (start-server system-so-far)})))
+
+(defn stop-system
+  [system]
+  (stop-server (::server system))
+  (stop-worker (::worker system))
+  (stop-db (::db system)))</pre></code>
+        </section>
+    </li>
+    <li>
+        <section id="take-cookie-store-from-system">
+            <h2 class="section-header"><a href="#take-cookie-store-from-system">Have <code>standard-html-route-middleware</code> take its <code>cookie-store</code> from the <code>system</code></a></h2>
+            <code><pre>(ns example.middleware
+  (:require
+   <span style="font-weight: bold;">[example.system :as-alias system]</span>
+   [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
+   [ring.middleware.content-type :refer [wrap-content-type]]
+   [ring.middleware.cookies :refer [wrap-cookies]]
+   [ring.middleware.default-charset :refer [wrap-default-charset]]
+   [ring.middleware.flash :refer [wrap-flash]]
+   [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+   [ring.middleware.multipart-params :refer [wrap-multipart-params]]
+   [ring.middleware.nested-params :refer [wrap-nested-params]]
+   [ring.middleware.not-modified :refer [wrap-not-modified]]
+   [ring.middleware.params :refer [wrap-params]]
+   [ring.middleware.session :refer [wrap-session]]
+   <span style="font-weight: bold; color:red;">- [ring.middleware.session.cookie :refer [cookie-store]]</span>
+   [ring.middleware.x-headers :as x]))
+
+<span style="font-weight: bold; color:red;">- (def default-session-store (cookie-store))</span>
+
+(defn standard-html-route-middleware
+  [<span style="font-weight: bold;">{::system/keys [cookie-store]}</span>]
+  [#(x/wrap-content-type-options % :nosniff)
+   #(x/wrap-frame-options % :sameorigin)
+   wrap-not-modified
+   #(wrap-default-charset % "utf-8")
+   wrap-content-type
+   wrap-cookies
+   wrap-params
+   wrap-multipart-params
+   wrap-nested-params
+   wrap-keyword-params
+   #(wrap-session % {:cookie-attrs {:http-only true}
+                     :store <span style="font-weight: bold;">cookie-store</span>})
+   wrap-flash
+   wrap-anti-forgery])</pre></code>
+        </section>
+    </li>
+    <li>
+        <section id="add-cookie-store-to-dev-user-clj">
+            <h2 class="section-header"><a href="#add-cookie-store-to-dev-user-clj">Add a <code>cookie-store</code></a> function to <code>dev/user.clj</code></h2>
+            <p>Just like for other things we add to the system, having a function to get at it from the <code>REPL</code>
+            can be helpful.</p>
+            <code><pre>(ns user
+  (:require [example.system :as system]))
+
+(def system nil)
+
+...
+
+<span style="font-weight: bold;">(defn cookie-store
+  []
+  (::system/cookie-store system))</span></pre></code>
+        </section>
+    </li>
+    <li>
+        <section id="document-your-middleware">
+            <h2 class="section-header"><a href="#document-your-middleware">Document your middleware</a></h2>
+            <p>A huge vector of functions with somewhat generic names like "<code>wrap-params</code>" can be hard
+            to navigate. Just like with dependencies, it can pay off later if we add comments now for what each of these
+            things do.</p>
+            <code><pre>(ns example.middleware
+  (:require
+   ...))
+
+(defn standard-html-route-middleware
+  [{::system/keys [cookie-store]}]
+  [<span style="font-weight: bold;">;; Prevents "media type confusion" attacks</span>
+   #(x/wrap-content-type-options % :nosniff)
+   <span style="font-weight: bold;">;; Prevents "clickjacking" attacks</span>
+   #(x/wrap-frame-options % :sameorigin)
+   <span style="font-weight: bold;">;; Returns "304 Not Modified" if appropriate</span>
+   wrap-not-modified
+   <span style="font-weight: bold;">;; Adds "; charset=utf-8" to responses if none specified</span>
+   #(wrap-default-charset % "utf-8")
+   <span style="font-weight: bold;">;; Guesses an appropriate Content-Type if none set</span>
+   wrap-content-type
+   <span style="font-weight: bold;">;; Parses out cookies from the request</span>
+   wrap-cookies
+   <span style="font-weight: bold;">;; Parses out urlencoded form and url parameters</span>
+   wrap-params
+   <span style="font-weight: bold;">;; Parses out multipart params.
+   ;; Useful for things like file uploads</span>
+   wrap-multipart-params
+   <span style="font-weight: bold;">;; Handles "multi-value" form parameters</span>
+   wrap-nested-params
+   <span style="font-weight: bold;">;; Turns any string keys in :params into keywords</span>
+   wrap-keyword-params
+   <span style="font-weight: bold;">;; Handles reading and writing "session data"</span>
+   #(wrap-session % {:cookie-attrs {:http-only true}
+                     :store cookie-store})
+   <span style="font-weight: bold;">;; Handles "flash" data which is around only until the
+   ;; immediate next request.</span>
+   wrap-flash
+   <span style="font-weight: bold;">;; Ensures that POST requests contain an anti-forgery token</span>
+   wrap-anti-forgery])</pre></code>
+        </section>
+    </li>
+
+    <li>
+        <section id="insert-a-cave"><h2 class="section-header"><a href="#insert-a-cave">Insert a cave on <code>/cave</code></a></h2>
+        <p>This is the route that currently makes the most use of the functionality added by all this middleware.
+        The anti-forgery token comes in from and is validated by the anti-forgery middleware and the <code>:params</code>
+        that <code>/cave/create</code> reads from comes from <code>wrap-params</code>.</p> If this page still functions
+        then you probably haven't broken anything.</section>
+    </li>
+</ul>
+
+<section>
+    <div>
+        <h1>
+            <a href="/tutorial/clojure/30_serve_static_files.html"
+            >&larr; Serve Static Files </a
+            >
+        </h1>
+    </div>
+</section>
+
+</body>
+</html>

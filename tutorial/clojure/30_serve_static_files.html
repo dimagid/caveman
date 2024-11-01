@@ -82,13 +82,13 @@
             <code><pre>(ns example.static.routes
   (:require [ring.util.response :as response]))
 
-(defn favicon.ico-handler
+(defn favicon-ico-handler
   [& _]
   (response/resource-response "/favicon.ico"))
 
 (defn routes
   [_]
-  [["/favicon.ico" favicon.ico-handler]])</pre></code>
+  [["/favicon.ico" favicon-ico-handler]])</pre></code>
         </section>
     </li>
     <li>
@@ -130,6 +130,11 @@
 
 <section>
     <div>
+        <h1>
+            <a href="/tutorial/clojure/31_make_middleware_explicit.html"
+            >&rarr; Make Middleware Explicit</a
+            >
+        </h1>
         <h1>
             <a href="/tutorial/clojure/29_share_html_across_pages.html"
             >&larr; Share HTML Across Pages </a
