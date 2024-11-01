@@ -82,9 +82,13 @@
             <code><pre>(ns example.static.routes
   (:require [ring.util.response :as response]))
 
+(defn favicon.ico-handler
+  [& _]
+  (response/resource-response "/favicon.ico"))
+
 (defn routes
   [_]
-  [["/favicon.ico" (fn [& _] (response/resource-response "/favicon.ico"))]])</pre></code>
+  [["/favicon.ico" favicon.ico-handler]])</pre></code>
         </section>
     </li>
     <li>
