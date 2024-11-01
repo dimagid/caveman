@@ -2,7 +2,7 @@
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ;; HTTP server
         ring/ring {:mvn/version "1.13.0"}
-        ;; Filesystem utilities
+        ;; File system utilities
         babashka/fs {:mvn/version "0.5.22"}
         ;; Routing library
         metosin/reitit-ring {:mvn/version "0.7.2"}

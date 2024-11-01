@@ -1,8 +1,8 @@
 (ns example.math-test
   (:require
+   [clojure.test :as t]
    [example.test-system :as test-system]
-   [next.jdbc :as jdbc]
-   [clojure.test :as t]))
+   [next.jdbc :as jdbc]))
 
 (t/deftest one-plus-one
   (t/is (= (+ 1 1) 2) "One plus one equals 2!"))

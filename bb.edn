@@ -19,7 +19,13 @@
         :task (clojure "-M:lint -m clj-kondo.main --lint .")}
 
   test {:doc "Run tests with kaocha"
-          :task (clojure "-M:dev -m kaocha.runner")}
+        :task (clojure "-M:dev -m kaocha.runner")}
+
+  outdated_check {:doc "Check for outdated dependencies"
+                  :task (clojure "-Sdeps '{:deps {com.github.liquidz/antq {:mvn/version \"RELEASE\"}}}' -M -m antq.core")}
+
+  outdated {:doc "Upgrade outdated versions interactively"
+            :task (clojure "-Sdeps '{:deps {com.github.liquidz/antq {:mvn/version \"RELEASE\"}}}' -M -m antq.core --upgrade")}
 
   uber {:doc "Build uberjar"
         :task (clojure "-T:build uber")}}}

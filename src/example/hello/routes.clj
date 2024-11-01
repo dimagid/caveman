@@ -1,5 +1,6 @@
 (ns example.hello.routes
   (:require
+   [example.page-html.core :as page-html]
    [example.system :as-alias system]
    [hiccup2.core :as hiccup]
    [next.jdbc :as jdbc]))
@@ -13,9 +14,8 @@
      :headers {"Content-Type" "text/html"}
      :body (str
             (hiccup/html
-             [:html
-              [:body
-               [:h1 "Hello, " planet]]]))}))
+             (page-html/view
+              :body [:h1 "Hello, " planet])))}))
 
 (defn routes
   [system]

@@ -25,3 +25,11 @@ lint:
 # Run tests with kaocha
 test:
     clojure -M:dev -m kaocha.runner
+
+# Check for outdated dependencies
+outdated_check:
+    clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' -M -m antq.core
+
+# Upgrade outdated versions interactively
+outdated:
+    clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' -M -m antq.core --upgrade
