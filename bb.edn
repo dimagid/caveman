@@ -6,8 +6,8 @@
 
   nrepl {:doc "Start a REPL with nREPL and CIDER support"
          :task (if (fs/windows?)
-                 (clojure "-M:dev -m nrepl.cmdline")
-                 (shell "rlwrap bb clojure -M:dev -m nrepl.cmdline"))}
+                 (clojure "-M:dev -m nrepl.cmdline --middleware \"[cider.nrepl/cider-middleware]\"")
+                 (shell "rlwrap bb clojure -M:dev -m nrepl.cmdline --middleware \"[cider.nrepl/cider-middleware]\""))}
 
   format_check {:doc "Check for code formatting issues in the src and dev directories"
                 :task (clojure "-M:format -m cljfmt.main check src dev test")}

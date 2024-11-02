@@ -15,6 +15,7 @@
      :body (str
             (hiccup/html
              (page-html/view
+              :title "Caveman Demo Homepage"
               :body [:h1 "Hello, " planet])))}))
 
 (defn routes

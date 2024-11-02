@@ -1,6 +1,6 @@
 # Shows available recipes
 help:
-    just --list
+    just --list --color=never
 
 # Run the main application
 start:
@@ -8,7 +8,7 @@ start:
 
 # Start a REPL with nREPL and CIDER support
 nrepl:
-    if [ "$(uname -s)" = "MINGW" ]; then clojure -M:dev -m nrepl.cmdline; else rlwrap bb clojure -M:dev -m nrepl.cmdline; fi
+    if [ "$(uname -s)" = "MINGW" ]; then clojure -M:dev -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"; else rlwrap bb clojure -M:dev -m nrepl.cmdline --middleware "[cider.nrepl/cider-middleware]"; fi
 
 # Check for code formatting issues in the src and dev directories
 format_check:

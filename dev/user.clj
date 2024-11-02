@@ -36,6 +36,10 @@
   []
   (::system/env system))
 
+(defn cookie-store
+  []
+  (::system/cookie-store system))
+
 (defn get-cave-table
   []
   (jdbc/execute! (db) ["SELECT * FROM prehistoric.cave"]))
