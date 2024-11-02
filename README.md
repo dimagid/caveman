@@ -1,6 +1,6 @@
 # Caveman
 
-<img src="caveman.jpg" width="200px"></img>
+<img src="/site/caveman.jpg" width="200px"></img>
 
 <a href="https://caveman.mccue.dev">https://caveman.mccue.dev</a>
 
