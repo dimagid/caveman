@@ -18,6 +18,8 @@
               :title "Caveman Demo Homepage"
               :body [:h1 "Hello, " planet])))}))
 
+  ;; Define a URL route for the web app, with :get specifying the handler.
+  ;; This route structure is Reitit-compatible, enabling easy integration.
 (defn routes
   [system]
   [["/" {:get {:handler (partial #'hello-handler system)}}]])

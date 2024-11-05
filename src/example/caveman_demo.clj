@@ -1,8 +1,12 @@
 (ns example.caveman-demo
   (:gen-class)
   (:require
+   [babashka.fs :as fs]
    [example.system :as system]))
 
+(defn get-project-name []
+  (fs/file-name (fs/cwd)))
+
 (defn -main []
-  (println "Starting the example web server on port 9999...")
+  (println (str "Loading application " (get-project-name) "..."))
   (system/start-system))
