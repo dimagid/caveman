@@ -163,7 +163,7 @@ PORT=9999</pre>
   (HikariDataSource/.close db))
 
 (defn start-server
-  [{::keys [env] :as system}]
+  [{::keys [env] <span style="font-weight: bold;">:as system</span>}]
   (jetty/run-jetty
    (partial #'routes/root-handler system)
    {:port  <span style="font-weight: bold;">(Long/parseLong (Dotenv/.get env "PORT"))</span>
